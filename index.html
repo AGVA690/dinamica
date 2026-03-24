@@ -1,0 +1,2687 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Destrezas Maker - FUSALMO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      :root {
+        --maker-primary: #f59e0b;
+        --maker-dark: #1e293b;
+        --maker-light: #f1f5f9;
+        --metal-gray: #94a3b8;
+      }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+        scroll-behavior: smooth;
+      }
+      .chart-container {
+        position: relative;
+        width: 100%;
+        height: 300px;
+      }
+      .diagram-container {
+        position: relative;
+        width: 100%;
+        height: 350px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+      .hotspot {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        background-color: var(--maker-primary);
+        border: 3px solid white;
+        border-radius: 50%;
+        cursor: pointer;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      .hotspot:hover,
+      .hotspot.active {
+        transform: translate(-50%, -50%) scale(1.25);
+        background-color: #d97706;
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3);
+      }
+      .pulse-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: var(--maker-primary);
+        border-radius: 50%;
+        z-index: -1;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: scale(2.5);
+          opacity: 0;
+        }
+      }
+      .hidden-section {
+        display: none !important;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .part-highlight {
+        outline: 3px solid #f59e0b !important;
+        box-shadow:
+          0 0 0 6px rgba(245, 158, 11, 0.35),
+          0 0 22px rgba(245, 158, 11, 0.25) !important;
+        filter: brightness(1.35) saturate(1.5) !important;
+        z-index: 12 !important;
+        position: relative;
+        transition:
+          outline 0.25s ease,
+          box-shadow 0.25s ease,
+          filter 0.25s ease !important;
+      }
+
+      /* === CSS SHAPES === */
+      /* Prensa Manual */
+      .shape-prensa {
+        position: relative;
+        width: 220px;
+        height: 160px;
+      }
+      .p-base {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        width: 140px;
+        height: 30px;
+        background: #ea580c;
+        border-radius: 4px;
+      }
+      .p-jaw-fixed {
+        position: absolute;
+        bottom: 50px;
+        left: 20px;
+        width: 35px;
+        height: 70px;
+        background: #ea580c;
+        border-radius: 4px 4px 0 0;
+      }
+      .p-jaw-move {
+        position: absolute;
+        bottom: 50px;
+        left: 80px;
+        width: 35px;
+        height: 70px;
+        background: #ea580c;
+        border-radius: 4px 4px 0 0;
+      }
+      .p-screw {
+        position: absolute;
+        bottom: 75px;
+        left: 115px;
+        width: 80px;
+        height: 12px;
+        background: var(--metal-gray);
+      }
+      .p-handle {
+        position: absolute;
+        bottom: 45px;
+        left: 185px;
+        width: 12px;
+        height: 70px;
+        background: #64748b;
+        border-radius: 6px;
+      }
+
+      /* Sierra Manual */
+      .shape-sierra {
+        position: relative;
+        width: 280px;
+        height: 140px;
+      }
+      .s-arco {
+        position: absolute;
+        top: 20px;
+        left: 10px;
+        width: 220px;
+        height: 80px;
+        border: 12px solid #94a3b8;
+        border-bottom: none;
+        border-radius: 16px 16px 0 0;
+      }
+      .s-mango {
+        position: absolute;
+        top: 20px;
+        left: 230px;
+        width: 35px;
+        height: 100px;
+        background: #1e293b;
+        border-radius: 8px;
+      }
+      .s-hoja {
+        position: absolute;
+        top: 100px;
+        left: 10px;
+        width: 225px;
+        height: 6px;
+        background: #475569;
+        border-bottom: 2px dashed #cbd5e1;
+      }
+      .s-tensor {
+        position: absolute;
+        top: 95px;
+        left: -5px;
+        width: 15px;
+        height: 15px;
+        background: #64748b;
+        border-radius: 50%;
+      }
+
+      /* Tronzadora */
+      .shape-tronzadora {
+        position: relative;
+        width: 240px;
+        height: 220px;
+      }
+      .t-base {
+        position: absolute;
+        bottom: 20px;
+        left: 10px;
+        width: 220px;
+        height: 35px;
+        background: #1e293b;
+        border-radius: 6px;
+      }
+      .t-brazo {
+        position: absolute;
+        bottom: 55px;
+        left: 160px;
+        width: 40px;
+        height: 120px;
+        background: #eab308;
+        border-radius: 8px;
+        transform: rotate(25deg);
+      }
+      .t-motor {
+        position: absolute;
+        top: 40px;
+        left: 80px;
+        width: 90px;
+        height: 60px;
+        background: #eab308;
+        border-radius: 8px;
+      }
+      .t-disco {
+        position: absolute;
+        top: 60px;
+        left: 40px;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: #475569;
+        border: 6px solid #cbd5e1;
+      }
+      .t-guarda {
+        position: absolute;
+        top: 50px;
+        left: 30px;
+        width: 130px;
+        height: 65px;
+        background: rgba(203, 213, 225, 0.9);
+        border-radius: 65px 65px 0 0;
+      }
+      .t-mango {
+        position: absolute;
+        top: 10px;
+        left: 130px;
+        width: 20px;
+        height: 50px;
+        background: #0f172a;
+        border-radius: 8px;
+        transform: rotate(25deg);
+      }
+
+      /* Taladro Manual */
+      .shape-taladro_manual {
+        position: relative;
+        width: 220px;
+        height: 200px;
+      }
+      .tm-body {
+        position: absolute;
+        top: 40px;
+        left: 40px;
+        width: 110px;
+        height: 50px;
+        background: #3b82f6;
+        border-radius: 8px;
+      }
+      .tm-grip {
+        position: absolute;
+        top: 85px;
+        left: 55px;
+        width: 35px;
+        height: 75px;
+        background: #2563eb;
+        border-radius: 0 0 10px 10px;
+      }
+      .tm-chuck {
+        position: absolute;
+        top: 48px;
+        left: 148px;
+        width: 35px;
+        height: 22px;
+        background: var(--metal-gray);
+        border-radius: 0 6px 6px 0;
+      }
+      .tm-bit {
+        position: absolute;
+        top: 54px;
+        left: 181px;
+        width: 22px;
+        height: 8px;
+        background: #64748b;
+      }
+      .tm-battery {
+        position: absolute;
+        top: 88px;
+        left: 88px;
+        width: 50px;
+        height: 30px;
+        background: #1e293b;
+        border-radius: 4px;
+      }
+      .tm-trigger {
+        position: absolute;
+        top: 82px;
+        left: 65px;
+        width: 12px;
+        height: 18px;
+        background: #475569;
+        border-radius: 3px;
+      }
+
+      /* Esmeril */
+      .shape-esmeril {
+        position: relative;
+        width: 260px;
+        height: 180px;
+      }
+      .es-base {
+        position: absolute;
+        bottom: 10px;
+        left: 50px;
+        width: 160px;
+        height: 20px;
+        background: #475569;
+        border-radius: 4px;
+      }
+      .es-motor {
+        position: absolute;
+        bottom: 30px;
+        left: 90px;
+        width: 80px;
+        height: 55px;
+        background: #1e293b;
+        border-radius: 6px;
+      }
+      .es-wheel-l {
+        position: absolute;
+        bottom: 38px;
+        left: 15px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #94a3b8;
+        border: 5px solid #64748b;
+      }
+      .es-wheel-r {
+        position: absolute;
+        bottom: 38px;
+        left: 165px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: #94a3b8;
+        border: 5px solid #64748b;
+      }
+      .es-guard-l {
+        position: absolute;
+        bottom: 78px;
+        left: 13px;
+        width: 84px;
+        height: 42px;
+        background: rgba(203, 213, 225, 0.85);
+        border-radius: 42px 42px 0 0;
+      }
+      .es-guard-r {
+        position: absolute;
+        bottom: 78px;
+        left: 163px;
+        width: 84px;
+        height: 42px;
+        background: rgba(203, 213, 225, 0.85);
+        border-radius: 42px 42px 0 0;
+      }
+      .es-rest {
+        position: absolute;
+        bottom: 48px;
+        left: 35px;
+        width: 25px;
+        height: 8px;
+        background: #64748b;
+      }
+
+      /* Taladro de Banco */
+      .shape-taladro_banco {
+        position: relative;
+        width: 200px;
+        height: 240px;
+      }
+      .tb-base {
+        position: absolute;
+        bottom: 5px;
+        left: 20px;
+        width: 160px;
+        height: 20px;
+        background: #475569;
+        border-radius: 4px;
+      }
+      .tb-column {
+        position: absolute;
+        bottom: 25px;
+        left: 92px;
+        width: 16px;
+        height: 160px;
+        background: #64748b;
+      }
+      .tb-table {
+        position: absolute;
+        bottom: 80px;
+        left: 35px;
+        width: 130px;
+        height: 12px;
+        background: #475569;
+        border-radius: 2px;
+      }
+      .tb-head {
+        position: absolute;
+        top: 15px;
+        left: 55px;
+        width: 90px;
+        height: 55px;
+        background: #eab308;
+        border-radius: 8px;
+      }
+      .tb-chuck {
+        position: absolute;
+        top: 68px;
+        left: 87px;
+        width: 26px;
+        height: 25px;
+        background: var(--metal-gray);
+        border-radius: 0 0 6px 6px;
+      }
+      .tb-handle {
+        position: absolute;
+        top: 30px;
+        left: 142px;
+        width: 35px;
+        height: 8px;
+        background: #0f172a;
+        border-radius: 4px;
+      }
+      .tb-knob {
+        position: absolute;
+        top: 25px;
+        left: 173px;
+        width: 12px;
+        height: 14px;
+        background: #0f172a;
+        border-radius: 50%;
+      }
+
+      /* Sierra de Cinta */
+      .shape-sierra_cinta {
+        position: relative;
+        width: 260px;
+        height: 200px;
+      }
+      .sc-base {
+        position: absolute;
+        bottom: 10px;
+        left: 30px;
+        width: 200px;
+        height: 25px;
+        background: #475569;
+        border-radius: 4px;
+      }
+      .sc-body {
+        position: absolute;
+        bottom: 35px;
+        left: 55px;
+        width: 130px;
+        height: 80px;
+        background: #dc2626;
+        border-radius: 8px;
+      }
+      .sc-wheel-l {
+        position: absolute;
+        bottom: 50px;
+        left: 30px;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        background: #1e293b;
+        border: 3px solid #475569;
+      }
+      .sc-wheel-r {
+        position: absolute;
+        bottom: 50px;
+        left: 175px;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        background: #1e293b;
+        border: 3px solid #475569;
+      }
+      .sc-blade {
+        position: absolute;
+        bottom: 74px;
+        left: 56px;
+        width: 148px;
+        height: 3px;
+        background: #94a3b8;
+      }
+      .sc-handle {
+        position: absolute;
+        top: 30px;
+        left: 100px;
+        width: 60px;
+        height: 25px;
+        background: #1e293b;
+        border-radius: 12px;
+      }
+      .sc-clamp {
+        position: absolute;
+        bottom: 35px;
+        left: 150px;
+        width: 20px;
+        height: 30px;
+        background: #64748b;
+        border-radius: 2px;
+      }
+
+      /* Caladora */
+      .shape-caladora {
+        position: relative;
+        width: 200px;
+        height: 210px;
+      }
+      .ca-body {
+        position: absolute;
+        top: 45px;
+        left: 55px;
+        width: 90px;
+        height: 65px;
+        background: #16a34a;
+        border-radius: 8px;
+      }
+      .ca-handle {
+        position: absolute;
+        top: 10px;
+        left: 68px;
+        width: 60px;
+        height: 45px;
+        background: #15803d;
+        border-radius: 20px 20px 0 0;
+      }
+      .ca-blade {
+        position: absolute;
+        top: 108px;
+        left: 68px;
+        width: 4px;
+        height: 55px;
+        background: #94a3b8;
+      }
+      .ca-baseplate {
+        position: absolute;
+        top: 108px;
+        left: 48px;
+        width: 75px;
+        height: 10px;
+        background: #475569;
+        border-radius: 2px;
+      }
+      .ca-trigger {
+        position: absolute;
+        top: 55px;
+        left: 48px;
+        width: 10px;
+        height: 18px;
+        background: #475569;
+        border-radius: 3px;
+      }
+      .ca-guard {
+        position: absolute;
+        top: 103px;
+        left: 58px;
+        width: 28px;
+        height: 12px;
+        background: rgba(203, 213, 225, 0.8);
+        border-radius: 0 0 4px 4px;
+      }
+
+      /* Dremel */
+      .shape-dremel {
+        position: relative;
+        width: 260px;
+        height: 130px;
+      }
+      .dr-body {
+        position: relative;
+        top: 35px;
+        left: 35px;
+        width: 150px;
+        height: 42px;
+        background: #6366f1;
+        border-radius: 21px;
+      }
+      .dr-nose {
+        position: absolute;
+        top: 38px;
+        left: 178px;
+        width: 40px;
+        height: 34px;
+        background: #4f46e5;
+        border-radius: 0 17px 17px 0;
+      }
+      .dr-collet {
+        position: absolute;
+        top: 45px;
+        left: 216px;
+        width: 22px;
+        height: 18px;
+        background: var(--metal-gray);
+        border-radius: 0 4px 4px 0;
+      }
+      .dr-bit {
+        position: absolute;
+        top: 49px;
+        left: 236px;
+        width: 16px;
+        height: 8px;
+        background: #64748b;
+      }
+      .dr-dial {
+        position: absolute;
+        top: 40px;
+        left: 80px;
+        width: 20px;
+        height: 20px;
+        background: #1e293b;
+        border-radius: 50%;
+      }
+      .dr-switch {
+        position: absolute;
+        top: 37px;
+        left: 120px;
+        width: 22px;
+        height: 10px;
+        background: #475569;
+        border-radius: 3px;
+      }
+
+      /* Router / Fresadora */
+      .shape-router {
+        position: relative;
+        width: 220px;
+        height: 210px;
+      }
+      .rt-motor {
+        position: absolute;
+        top: 15px;
+        left: 65px;
+        width: 90px;
+        height: 100px;
+        background: #0891b2;
+        border-radius: 10px;
+      }
+      .rt-handle-l {
+        position: absolute;
+        top: 55px;
+        left: 10px;
+        width: 58px;
+        height: 18px;
+        background: #1e293b;
+        border-radius: 10px;
+      }
+      .rt-handle-r {
+        position: absolute;
+        top: 55px;
+        left: 152px;
+        width: 58px;
+        height: 18px;
+        background: #1e293b;
+        border-radius: 10px;
+      }
+      .rt-base {
+        position: absolute;
+        bottom: 30px;
+        left: 45px;
+        width: 130px;
+        height: 18px;
+        background: #475569;
+        border-radius: 4px;
+      }
+      .rt-collet {
+        position: absolute;
+        bottom: 48px;
+        left: 97px;
+        width: 26px;
+        height: 35px;
+        background: var(--metal-gray);
+        border-radius: 0 0 6px 6px;
+      }
+      .rt-bit {
+        position: absolute;
+        bottom: 15px;
+        left: 104px;
+        width: 12px;
+        height: 20px;
+        background: #64748b;
+      }
+
+      /* Nivel Láser */
+      .shape-nivel_laser {
+        position: relative;
+        width: 200px;
+        height: 180px;
+      }
+      .nl-body {
+        position: absolute;
+        top: 30px;
+        left: 40px;
+        width: 120px;
+        height: 85px;
+        background: #dc2626;
+        border-radius: 8px;
+      }
+      .nl-window {
+        position: absolute;
+        top: 45px;
+        left: 55px;
+        width: 90px;
+        height: 22px;
+        background: #1e293b;
+        border-radius: 4px;
+      }
+      .nl-emitter {
+        position: absolute;
+        top: 50px;
+        left: 78px;
+        width: 12px;
+        height: 12px;
+        background: #ef4444;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #ef4444;
+      }
+      .nl-base {
+        position: absolute;
+        bottom: 35px;
+        left: 55px;
+        width: 90px;
+        height: 12px;
+        background: #475569;
+        border-radius: 4px;
+      }
+      .nl-leg-l {
+        position: absolute;
+        bottom: 22px;
+        left: 62px;
+        width: 8px;
+        height: 16px;
+        background: #64748b;
+      }
+      .nl-leg-r {
+        position: absolute;
+        bottom: 22px;
+        left: 130px;
+        width: 8px;
+        height: 16px;
+        background: #64748b;
+      }
+      .nl-btn {
+        position: absolute;
+        top: 82px;
+        left: 90px;
+        width: 16px;
+        height: 16px;
+        background: #475569;
+        border-radius: 50%;
+      }
+      .nl-beam-l {
+        position: absolute;
+        top: 53px;
+        left: 0px;
+        width: 42px;
+        height: 2px;
+        background: #ef4444;
+        opacity: 0.7;
+      }
+      .nl-beam-r {
+        position: absolute;
+        top: 53px;
+        left: 158px;
+        width: 42px;
+        height: 2px;
+        background: #ef4444;
+        opacity: 0.7;
+      }
+
+      /* Lijadora Orbital */
+      .shape-lijadora {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+      .lj-body {
+        position: absolute;
+        top: 45px;
+        left: 35px;
+        width: 120px;
+        height: 60px;
+        background: #ea580c;
+        border-radius: 10px;
+      }
+      .lj-handle {
+        position: absolute;
+        top: 12px;
+        left: 50px;
+        width: 90px;
+        height: 42px;
+        background: #c2410c;
+        border-radius: 20px 20px 0 0;
+      }
+      .lj-pad {
+        position: absolute;
+        top: 103px;
+        left: 30px;
+        width: 130px;
+        height: 16px;
+        background: #fbbf24;
+        border-radius: 0 0 6px 6px;
+      }
+      .lj-sandpaper {
+        position: absolute;
+        top: 117px;
+        left: 30px;
+        width: 130px;
+        height: 6px;
+        background: #92400e;
+        border-radius: 0 0 4px 4px;
+      }
+      .lj-dust {
+        position: absolute;
+        top: 58px;
+        left: 153px;
+        width: 28px;
+        height: 16px;
+        background: #475569;
+        border-radius: 0 6px 6px 0;
+      }
+      .lj-switch {
+        position: absolute;
+        top: 50px;
+        left: 80px;
+        width: 18px;
+        height: 10px;
+        background: #1e293b;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-50">
+      <div
+        class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between"
+      >
+        <div
+          class="flex items-center gap-3 cursor-pointer"
+          onclick="navTo('home')"
+        >
+          <div class="bg-amber-500 p-2 rounded-lg">
+            <span class="text-xl leading-none">🛠️</span>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold tracking-tight">Destrezas Maker</h1>
+            <p
+              class="text-[10px] text-amber-400 font-semibold tracking-wider uppercase"
+            >
+              FUSALMO
+            </p>
+          </div>
+        </div>
+        <nav class="hidden md:flex gap-3 text-sm font-medium">
+          <button
+            onclick="navTo('bloque3')"
+            class="hover:text-amber-400 transition px-3 py-2 rounded-md hover:bg-slate-800"
+          >
+            Bloque 3
+          </button>
+          <button
+            onclick="navTo('bloque5')"
+            class="hover:text-amber-400 transition px-3 py-2 rounded-md hover:bg-slate-800"
+          >
+            Bloque 5
+          </button>
+          <button
+            onclick="navTo('bloque7')"
+            class="hover:text-amber-400 transition px-3 py-2 rounded-md hover:bg-slate-800"
+          >
+            Bloque 7
+          </button>
+          <button
+            onclick="navTo('bloque9')"
+            class="hover:text-amber-400 transition px-3 py-2 rounded-md hover:bg-slate-800"
+          >
+            Bloque 9
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+      <!-- HOME -->
+      <section id="view-home" class="animate-fade-in">
+        <div
+          class="bg-white rounded-2xl shadow-sm border border-slate-200 p-10 text-center max-w-5xl mx-auto mt-4 relative overflow-hidden"
+        >
+          <div
+            class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-400 to-orange-500"
+          ></div>
+          <span
+            class="inline-block px-4 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-bold mb-4 tracking-wide"
+            >DESTREZAS MAKER</span
+          >
+          <h2
+            class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight"
+          >
+            Herramientas Maker<br /><span
+              class="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600"
+              >FUSALMO</span
+            >
+          </h2>
+          <p
+            class="text-lg text-slate-600 mb-8 leading-relaxed max-w-2xl mx-auto"
+          >
+            Domina las herramientas del Maker Space. Cada bloque te enseña
+            herramientas de corte, perforación y acabado, con su respectivo
+            desafío de evaluación.
+          </p>
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            id="home-blocks"
+          ></div>
+        </div>
+      </section>
+
+      <div id="block-views-container"></div>
+      <div id="tool-views-container"></div>
+
+      <!-- QUIZ COMPARTIDO -->
+      <section id="view-quiz" class="hidden-section">
+        <div
+          class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+        >
+          <div
+            class="bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white text-center relative overflow-hidden"
+          >
+            <div class="absolute -right-10 -top-10 opacity-10 text-9xl">🏆</div>
+            <span
+              class="inline-block px-3 py-1 bg-amber-500 text-white rounded-full text-xs font-bold mb-3 uppercase tracking-wider"
+              >Evaluación</span
+            >
+            <h2 class="text-3xl font-extrabold mb-2" id="quiz-title">
+              Desafío Maker
+            </h2>
+            <p class="text-slate-300" id="quiz-subtitle">
+              Demuestra tu conocimiento técnico y de seguridad.
+            </p>
+          </div>
+          <div class="p-8">
+            <div id="quiz-start" class="text-center py-8">
+              <h3 class="text-2xl font-bold text-slate-800 mb-4">
+                ¿Preparado?
+              </h3>
+              <p class="text-slate-600 mb-8">
+                Evalúa tus conocimientos sobre partes, uso correcto y equipo de
+                protección personal (EPP).
+              </p>
+              <button
+                onclick="startQuiz()"
+                class="px-8 py-4 bg-amber-500 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 hover:bg-amber-600 transform hover:-translate-y-1 transition"
+              >
+                Comenzar Evaluación
+              </button>
+            </div>
+            <div id="quiz-question" class="hidden-section">
+              <div class="flex justify-between items-center mb-6">
+                <span
+                  class="text-sm font-bold text-slate-400 uppercase tracking-wide"
+                  id="q-counter"
+                  >Pregunta 1 de 10</span
+                >
+                <div class="w-1/2 bg-slate-100 rounded-full h-2">
+                  <div
+                    id="q-progress"
+                    class="bg-amber-500 h-2 rounded-full transition-all duration-300"
+                  ></div>
+                </div>
+              </div>
+              <h3
+                id="q-text"
+                class="text-xl font-bold text-slate-800 mb-6 leading-relaxed"
+              ></h3>
+              <div id="q-options" class="space-y-3"></div>
+            </div>
+            <div id="quiz-results" class="hidden-section text-center">
+              <h3 class="text-3xl font-bold text-slate-800 mb-2">
+                Resultados del Desafío
+              </h3>
+              <p class="text-slate-600 mb-8">
+                Aciertos:
+                <span
+                  id="q-score"
+                  class="font-extrabold text-amber-500 text-2xl"
+                  >0</span
+                >
+                / <span id="q-total" class="font-bold">0</span>
+              </p>
+              <div
+                class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner"
+              >
+                <h4
+                  class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4"
+                >
+                  Análisis de Competencias
+                </h4>
+                <div class="chart-container">
+                  <canvas id="resultsChart"></canvas>
+                </div>
+              </div>
+              <div
+                id="q-feedback"
+                class="p-5 rounded-xl mb-6 text-left border"
+              ></div>
+              <button
+                onclick="navTo(currentBlock)"
+                class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition shadow-lg"
+              >
+                Volver al Bloque
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // ==================== DATOS ====================
+      const blocksData = {
+        bloque3: {
+          id: "bloque3",
+          num: "3",
+          name: "Herramientas Maker - Parte 1",
+          desc: "Herramientas fundamentales para corte y sujeción: Prensa manual, Sierra manual y Tronzadora.",
+          color: "from-amber-500 to-orange-600",
+          tools: ["prensa", "sierra", "tronzadora"],
+        },
+        bloque5: {
+          id: "bloque5",
+          num: "5",
+          name: "Herramientas Maker - Parte 2",
+          desc: "Herramientas de perforación y desbaste: Taladro manual, Esmeril y Taladro de banco.",
+          color: "from-blue-500 to-indigo-600",
+          tools: ["taladro_manual", "esmeril", "taladro_banco"],
+        },
+        bloque7: {
+          id: "bloque7",
+          num: "7",
+          name: "Herramientas Maker - Parte 3",
+          desc: "Herramientas de corte avanzado: Sierra de cinta, Caladora y Dremel.",
+          color: "from-green-500 to-emerald-600",
+          tools: ["sierra_cinta", "caladora", "dremel"],
+        },
+        bloque9: {
+          id: "bloque9",
+          num: "9",
+          name: "Herramientas Maker - Parte 4",
+          desc: "Herramientas de acabado y precisión: Router/Fresadora eléctrica, Nivel láser y Lijadora orbital.",
+          color: "from-red-500 to-rose-600",
+          tools: ["router", "nivel_laser", "lijadora"],
+        },
+      };
+
+      const toolsData = {
+        // ---- BLOQUE 3 ----
+        prensa: {
+          id: "prensa",
+          block: "bloque3",
+          icon: "🗜️",
+          name: "Prensa Manual",
+          desc: "Sirve para sujetar firmemente piezas de madera, plástico u otros materiales, evitando que se muevan mientras se corta, perfora, lija o se ensambla.",
+          htmlShape:
+            '<div class="shape-prensa"><div class="p-base" data-part="4"></div><div class="p-jaw-fixed" data-part="1"></div><div class="p-jaw-move" data-part="1"></div><div class="p-screw" data-part="2"></div><div class="p-handle" data-part="3"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Mordazas",
+              desc: "Partes que aprietan la pieza. Pueden marcar la pieza si no se usa protección.",
+              cat: "Partes",
+              top: "35%",
+              left: "25%",
+            },
+            {
+              id: 2,
+              name: "Husillo o Tornillo",
+              desc: "Mecanismo que ajusta la presión al girar.",
+              cat: "Partes",
+              top: "80%",
+              left: "60%",
+            },
+            {
+              id: 3,
+              name: "Manivela o Mango",
+              desc: "Se gira para apretar o aflojar el husillo gradualmente.",
+              cat: "Partes",
+              top: "50%",
+              left: "85%",
+            },
+            {
+              id: 4,
+              name: "Base o Cuerpo",
+              desc: "Estructura que sostiene toda la herramienta. Debe colocarse en una superficie estable.",
+              cat: "Estructura",
+              top: "85%",
+              left: "40%",
+            },
+          ],
+          safety: [
+            { icon: "✓", text: "Colocar la prensa en una superficie estable." },
+            { icon: "✓", text: "Alinear la pieza antes de apretar." },
+            { icon: "✓", text: "Apretar gradualmente (sin exceso de fuerza)." },
+            {
+              icon: "⚠️",
+              text: "Mantener dedos alejados de la zona de cierre (evitar pellizcos).",
+            },
+            {
+              icon: "🛡️",
+              text: "Usar protección (cartón/madera) si la pieza se puede marcar.",
+            },
+            {
+              icon: "✓",
+              text: "Verificar que la pieza quede firme antes de cortar o taladrar.",
+            },
+          ],
+          postura: null,
+        },
+        sierra: {
+          id: "sierra",
+          block: "bloque3",
+          icon: "🪚",
+          name: "Sierra Manual",
+          desc: "Sirve para cortar materiales de forma controlada, ideal para piezas pequeñas, ajustes y trabajos básicos en el área Maker.",
+          htmlShape:
+            '<div class="shape-sierra"><div class="s-arco" data-part="3"></div><div class="s-hoja" data-part="2"></div><div class="s-mango" data-part="1"></div><div class="s-tensor" data-part="4"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Mango o Empuñadura",
+              desc: "De donde se sujeta la sierra para realizar el movimiento de vaivén.",
+              cat: "Partes",
+              top: "50%",
+              left: "88%",
+            },
+            {
+              id: 2,
+              name: "Hoja o Sierra",
+              desc: "Parte con dientes. Corta principalmente madera y algunos plásticos.",
+              cat: "Partes",
+              top: "75%",
+              left: "50%",
+            },
+            {
+              id: 3,
+              name: "Arco o Marco",
+              desc: "Estructura superior que mantiene rígida la hoja (en modelos tipo segueta).",
+              cat: "Estructura",
+              top: "15%",
+              left: "40%",
+            },
+            {
+              id: 4,
+              name: "Tornillo/Tensor",
+              desc: "Permite ajustar la tensión de la hoja para un corte preciso.",
+              cat: "Ajuste",
+              top: "75%",
+              left: "5%",
+            },
+          ],
+          safety: [
+            { icon: "🥽", text: "Usar lentes de seguridad (por astillas)." },
+            {
+              icon: "⚠️",
+              text: "Sujetar el material con prensa (nunca con la mano).",
+            },
+            { icon: "✓", text: "Marcar la línea de corte antes de comenzar." },
+            {
+              icon: "✓",
+              text: 'Iniciar con movimientos suaves para "abrir camino" y mantener ritmo constante.',
+            },
+            {
+              icon: "⚠️",
+              text: "Mantener los dedos fuera de la trayectoria de la hoja.",
+            },
+            {
+              icon: "🛑",
+              text: "No forzar el corte: si se traba, detenerse y ajustar postura.",
+            },
+          ],
+          postura: [
+            "Pies separados al ancho de hombros (base firme).",
+            "Un pie ligeramente adelante (derecho si eres zurdo, izquierdo si eres diestro).",
+            "Rodillas un poquito flexionadas (no rígidas).",
+            "Espalda recta, inclinación leve desde la cadera (no encorvarse).",
+            'Brazo que sierra: se mueve adelante y atrás en línea recta, sin "torcer" la muñeca.',
+          ],
+        },
+        tronzadora: {
+          id: "tronzadora",
+          block: "bloque3",
+          icon: "⚙️",
+          name: "Tronzadora",
+          desc: "Herramienta eléctrica utilizada para cortar materiales metálicos mediante abrasión con un disco. Ideal para cortes rectos precisos.",
+          htmlShape:
+            '<div class="shape-tronzadora"><div class="t-base" data-part="3"></div><div class="t-brazo"></div><div class="t-motor" data-part="4"></div><div class="t-disco" data-part="1"></div><div class="t-guarda" data-part="2"></div><div class="t-mango" data-part="4"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Disco Abrasivo",
+              desc: "Herramienta que realiza el corte por fricción y abrasión.",
+              cat: "Corte",
+              top: "55%",
+              left: "40%",
+            },
+            {
+              id: 2,
+              name: "Guarda",
+              desc: "Protege al operario de las chispas y del contacto accidental con el disco.",
+              cat: "Seguridad",
+              top: "35%",
+              left: "40%",
+            },
+            {
+              id: 3,
+              name: "Base y Mordaza",
+              desc: "Estructura donde se apoya y asegura fuertemente la pieza a cortar.",
+              cat: "Estructura",
+              top: "90%",
+              left: "50%",
+            },
+            {
+              id: 4,
+              name: "Mango e Interruptor",
+              desc: "Zona donde se aplica presión para descender el disco y activar el motor.",
+              cat: "Operación",
+              top: "15%",
+              left: "60%",
+            },
+          ],
+          safety: [
+            { icon: "🥽", text: "Uso obligatorio de lentes de seguridad." },
+            {
+              icon: "🧤",
+              text: "Uso de guantes para manipular el metal y la herramienta.",
+            },
+            {
+              icon: "🎧",
+              text: "Uso de protectores auditivos por el alto nivel de ruido.",
+            },
+            {
+              icon: "✓",
+              text: "La pieza debe estar firmemente sujeta en la mordaza de la base.",
+            },
+            {
+              icon: "🛑",
+              text: "No forzar el descenso del brazo al momento de cortar.",
+            },
+            {
+              icon: "⏱️",
+              text: "Dejar que el disco alcance su máxima velocidad antes de descender y tocar la pieza.",
+            },
+          ],
+          postura: null,
+        },
+        // ---- BLOQUE 5 ----
+        taladro_manual: {
+          id: "taladro_manual",
+          block: "bloque5",
+          icon: "🔩",
+          name: "Taladro Manual",
+          desc: "Sirve para perforar materiales (madera, plástico y algunos metales delgados) y también para atornillar/desatornillar con control de fuerza, ideal para armado y prototipado.",
+          htmlShape:
+            '<div class="shape-taladro_manual"><div class="tm-body"></div><div class="tm-grip" data-part="4"></div><div class="tm-chuck" data-part="1"></div><div class="tm-bit" data-part="1"></div><div class="tm-battery" data-part="3"></div><div class="tm-trigger" data-part="2"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Mandril / Portabrocas",
+              desc: "Donde se coloca la broca o punta de atornillar. Debe ajustarse bien antes de usar.",
+              cat: "Partes",
+              top: "38%",
+              left: "75%",
+            },
+            {
+              id: 2,
+              name: "Gatillo",
+              desc: "Enciende y controla la velocidad del taladro. No mantener presión sin uso.",
+              cat: "Operación",
+              top: "56%",
+              left: "38%",
+            },
+            {
+              id: 3,
+              name: "Batería",
+              desc: "Fuente de energía del taladro. Verificar carga antes de trabajar.",
+              cat: "Energía",
+              top: "62%",
+              left: "58%",
+            },
+            {
+              id: 4,
+              name: "Empuñadura",
+              desc: "Agarre principal del taladro. Sostener firmemente durante la operación.",
+              cat: "Estructura",
+              top: "72%",
+              left: "35%",
+            },
+          ],
+          safety: [
+            { icon: "🥽", text: "Usar lentes de seguridad siempre." },
+            {
+              icon: "✓",
+              text: "Verificar que la broca esté bien ajustada en el mandril.",
+            },
+            {
+              icon: "⚠️",
+              text: "Sujetar la pieza con prensa o tornillo de banco (nunca con la mano).",
+            },
+            {
+              icon: "✓",
+              text: "Marcar el punto de perforación antes de taladrar (lápiz/punzón).",
+            },
+            {
+              icon: "✓",
+              text: "Mantener el taladro perpendicular a la superficie para perforar recto.",
+            },
+            {
+              icon: "✓",
+              text: "Iniciar a baja velocidad y aumentar de forma controlada.",
+            },
+            {
+              icon: "🛑",
+              text: "Si se traba, soltar el gatillo, retirar y revisar.",
+            },
+            {
+              icon: "⚠️",
+              text: "Mantener cabello recogido y ropa ajustada (sin cordones sueltos).",
+            },
+          ],
+          postura: null,
+        },
+        esmeril: {
+          id: "esmeril",
+          block: "bloque5",
+          icon: "🔧",
+          name: "Esmeril",
+          desc: "Sirve para desbastar, afilar y dar acabado a piezas (principalmente metal), eliminando rebabas, suavizando bordes y ajustando formas mediante una rueda abrasiva.",
+          htmlShape:
+            '<div class="shape-esmeril"><div class="es-base"></div><div class="es-motor" data-part="2"></div><div class="es-wheel-l" data-part="1"></div><div class="es-wheel-r" data-part="1"></div><div class="es-guard-l" data-part="3"></div><div class="es-guard-r" data-part="3"></div><div class="es-rest" data-part="4"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Ruedas Abrasivas",
+              desc: "Piedras que realizan el desbaste y afilado. Revisar que no tengan grietas antes de usar.",
+              cat: "Corte",
+              top: "45%",
+              left: "22%",
+            },
+            {
+              id: 2,
+              name: "Motor",
+              desc: "Genera la rotación de las piedras. Dejar que tome velocidad estable antes de acercar piezas.",
+              cat: "Energía",
+              top: "55%",
+              left: "50%",
+            },
+            {
+              id: 3,
+              name: "Guardas de Seguridad",
+              desc: "Protegen al operario de fragmentos y chispas. Nunca retirarlas.",
+              cat: "Seguridad",
+              top: "30%",
+              left: "72%",
+            },
+            {
+              id: 4,
+              name: "Apoyapiezas",
+              desc: "Donde se sostiene la pieza durante el esmerilado. Debe estar cerca de la piedra sin tocarla.",
+              cat: "Estructura",
+              top: "62%",
+              left: "28%",
+            },
+          ],
+          safety: [
+            {
+              icon: "🥽",
+              text: "EPP obligatorio: lentes + careta, mascarilla (polvo) y protector auditivo.",
+            },
+            {
+              icon: "⚠️",
+              text: "Cabello recogido, sin ropa suelta ni accesorios colgantes.",
+            },
+            {
+              icon: "✓",
+              text: "Revisar que la piedra no tenga grietas y la guarda esté colocada.",
+            },
+            {
+              icon: "✓",
+              text: "Verificar que el apoyapiezas esté cerca de la piedra (sin tocarla).",
+            },
+            {
+              icon: "⏱️",
+              text: "Encender y esperar a que tome velocidad estable.",
+            },
+            {
+              icon: "✓",
+              text: "Sujetar la pieza con firmeza y apoyarla suavemente.",
+            },
+            {
+              icon: "🛑",
+              text: "Apagar y esperar paro total antes de retirarse o ajustar.",
+            },
+            {
+              icon: "🔥",
+              text: "Mantener el área libre de materiales inflamables por las chispas.",
+            },
+          ],
+          postura: null,
+        },
+        taladro_banco: {
+          id: "taladro_banco",
+          block: "bloque5",
+          icon: "🏭",
+          name: "Taladro de Banco",
+          desc: "Máquina fija montada sobre mesa diseñada para hacer agujeros con precisión. La broca baja verticalmente de manera controlada permitiendo perforar recto, exacto y con fuerza constante.",
+          htmlShape:
+            '<div class="shape-taladro_banco"><div class="tb-base"></div><div class="tb-column"></div><div class="tb-table" data-part="3"></div><div class="tb-head" data-part="1"></div><div class="tb-chuck" data-part="2"></div><div class="tb-handle" data-part="4"></div><div class="tb-knob" data-part="4"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Cabeza / Motor",
+              desc: "Parte superior que contiene el motor y genera la rotación de la broca.",
+              cat: "Energía",
+              top: "18%",
+              left: "48%",
+            },
+            {
+              id: 2,
+              name: "Mandril",
+              desc: "Pieza que sujeta la broca. Asegurar que esté bien puesta antes del uso.",
+              cat: "Partes",
+              top: "40%",
+              left: "48%",
+            },
+            {
+              id: 3,
+              name: "Mesa de Trabajo",
+              desc: "Superficie donde se sostiene y sujeta la pieza para perforar.",
+              cat: "Estructura",
+              top: "62%",
+              left: "48%",
+            },
+            {
+              id: 4,
+              name: "Manivela",
+              desc: "Permite subir y bajar la broca de forma controlada. No forzar el avance.",
+              cat: "Operación",
+              top: "22%",
+              left: "80%",
+            },
+          ],
+          safety: [
+            { icon: "🥽", text: "Uso obligatorio de lentes de seguridad." },
+            { icon: "✓", text: "La pieza debe estar bien sujeta en la mesa." },
+            { icon: "✓", text: "Verificar RPM según el material a perforar." },
+            { icon: "✓", text: "Revisar que la broca esté en buen estado." },
+            {
+              icon: "✓",
+              text: "Marcar punto de perforación con centro punto.",
+            },
+            { icon: "🛑", text: "No forzar el avance de la broca." },
+            {
+              icon: "💧",
+              text: "Aplicar lubricante según el material y broca.",
+            },
+            {
+              icon: "✓",
+              text: "Asegurarse que la broca esté bien puesta antes del uso.",
+            },
+          ],
+          postura: null,
+        },
+        // ---- BLOQUE 7 ----
+        sierra_cinta: {
+          id: "sierra_cinta",
+          block: "bloque7",
+          icon: "🔪",
+          name: "Sierra de Cinta",
+          desc: "Sierra de cinta portátil horizontal montada sobre una base. Sirve para realizar cortes precisos y rectos en materiales sólidos como metales, aluminio, tubos y madera.",
+          htmlShape:
+            '<div class="shape-sierra_cinta"><div class="sc-base" data-part="3"></div><div class="sc-body"></div><div class="sc-wheel-l" data-part="1"></div><div class="sc-wheel-r" data-part="1"></div><div class="sc-blade" data-part="2"></div><div class="sc-handle" data-part="4"></div><div class="sc-clamp" data-part="3"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Poleas",
+              desc: "Donde se coloca y gira la sierra de cinta para generar el movimiento de corte.",
+              cat: "Partes",
+              top: "48%",
+              left: "22%",
+            },
+            {
+              id: 2,
+              name: "Sierra / Cinta",
+              desc: "Hoja continua que realiza el corte. Verificar su estado antes de usar.",
+              cat: "Corte",
+              top: "55%",
+              left: "50%",
+            },
+            {
+              id: 3,
+              name: "Base y Prensa",
+              desc: "Estructura de apoyo y mordaza donde se sujeta la pieza a cortar.",
+              cat: "Estructura",
+              top: "82%",
+              left: "65%",
+            },
+            {
+              id: 4,
+              name: "Empuñe / Mango",
+              desc: "Zona de control donde se sostiene y guía la herramienta.",
+              cat: "Operación",
+              top: "22%",
+              left: "50%",
+            },
+          ],
+          safety: [
+            {
+              icon: "🥽",
+              text: "EPP: uso de lentes de seguridad en todo momento.",
+            },
+            { icon: "🧤", text: "Uso de guantes de seguridad." },
+            {
+              icon: "✓",
+              text: "Sujetar de manera firme y segura la pieza a cortar.",
+            },
+            {
+              icon: "🛑",
+              text: "No ejercer mucha presión al momento de estar cortando.",
+            },
+            {
+              icon: "✓",
+              text: "Seleccionar velocidad adecuada según el material.",
+            },
+            {
+              icon: "✓",
+              text: "Verificar que el equipo esté bloqueado antes de ocuparlo.",
+            },
+            { icon: "⚠️", text: "Mantener cabello recogido." },
+            {
+              icon: "🛑",
+              text: "Siempre apagar el equipo al cambiar sierra de cinta o quitar material.",
+            },
+          ],
+          postura: null,
+        },
+        caladora: {
+          id: "caladora",
+          block: "bloque7",
+          icon: "📐",
+          name: "Caladora",
+          desc: "Sierra caladora eléctrica de corte para realizar cortes curvos, en línea recta y formas complejas en madera, plásticos o cerámicos.",
+          htmlShape:
+            '<div class="shape-caladora"><div class="ca-body"></div><div class="ca-handle" data-part="3"></div><div class="ca-blade" data-part="1"></div><div class="ca-baseplate" data-part="4"></div><div class="ca-trigger" data-part="2"></div><div class="ca-guard"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Hoja de Sierra",
+              desc: "Intercambiable según el material. Genera los cortes curvos o rectos.",
+              cat: "Corte",
+              top: "72%",
+              left: "42%",
+            },
+            {
+              id: 2,
+              name: "Gatillo",
+              desc: "Permite encender y apagar la máquina. Controla la potencia.",
+              cat: "Operación",
+              top: "42%",
+              left: "32%",
+            },
+            {
+              id: 3,
+              name: "Mango",
+              desc: "Zona superior para guiar la herramienta con control.",
+              cat: "Estructura",
+              top: "15%",
+              left: "50%",
+            },
+            {
+              id: 4,
+              name: "Base / Visor",
+              desc: "Placa inferior que se apoya sobre la pieza. Incluye zona donde se ubica la sierra.",
+              cat: "Estructura",
+              top: "62%",
+              left: "50%",
+            },
+          ],
+          safety: [
+            {
+              icon: "🧤",
+              text: "Uso de guantes (especialmente al cambiar hoja de sierra).",
+            },
+            { icon: "🥽", text: "Lentes de seguridad obligatorios." },
+            {
+              icon: "😷",
+              text: "Mascarilla al cortar madera (para evitar el aserrín).",
+            },
+            {
+              icon: "✓",
+              text: "Verificar que la hoja de sierra esté bien puesta.",
+            },
+            {
+              icon: "✓",
+              text: "Verificar el estado de la hoja antes de usarla.",
+            },
+            {
+              icon: "✓",
+              text: "Guiar la máquina suavemente, sin movimientos bruscos.",
+            },
+          ],
+          postura: null,
+        },
+        dremel: {
+          id: "dremel",
+          block: "bloque7",
+          icon: "✨",
+          name: "Dremel",
+          desc: "Herramienta rotativa eléctrica versátil que puede pulir, cortar, esmerilar y lijar. Compacta y con accesorios intercambiables según la tarea.",
+          htmlShape:
+            '<div class="shape-dremel"><div class="dr-body" data-part="4"></div><div class="dr-nose"></div><div class="dr-collet" data-part="1"></div><div class="dr-bit" data-part="1"></div><div class="dr-dial" data-part="2"></div><div class="dr-switch" data-part="3"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Pinza de Sujeción / Collet",
+              desc: "Pieza que sujeta los accesorios intercambiables (corte, lijado, etc.).",
+              cat: "Partes",
+              top: "48%",
+              left: "88%",
+            },
+            {
+              id: 2,
+              name: "Selector de RPM",
+              desc: "Dial para ajustar la velocidad según material y accesorio.",
+              cat: "Operación",
+              top: "42%",
+              left: "38%",
+            },
+            {
+              id: 3,
+              name: "Interruptor",
+              desc: "Enciende y apaga la herramienta de forma segura.",
+              cat: "Operación",
+              top: "38%",
+              left: "52%",
+            },
+            {
+              id: 4,
+              name: "Empuñadura",
+              desc: "Cuerpo cilíndrico que se sostiene con la mano más hábil.",
+              cat: "Estructura",
+              top: "55%",
+              left: "42%",
+            },
+          ],
+          safety: [
+            { icon: "🥽", text: "Uso obligatorio de lentes de seguridad." },
+            { icon: "✓", text: "Agarrar con la mano más hábil." },
+            {
+              icon: "✓",
+              text: "Elegir el accesorio correcto según la tarea (lijar, cortar, etc.).",
+            },
+            {
+              icon: "✓",
+              text: "Inspeccionar el accesorio antes de usar (sin averías).",
+            },
+            {
+              icon: "✓",
+              text: "Ajustar la velocidad según el material y accesorio.",
+            },
+            {
+              icon: "✓",
+              text: "Mantener movimiento constante para no quemar el material.",
+            },
+            {
+              icon: "⚠️",
+              text: "Fijar el material en la prensa antes de trabajar.",
+            },
+          ],
+          postura: null,
+        },
+        // ---- BLOQUE 9 ----
+        router: {
+          id: "router",
+          block: "bloque9",
+          icon: "🔄",
+          name: "Router / Fresadora Eléctrica",
+          desc: "Herramienta versátil para dar forma, cortar, grabar, biselar y ranurar materiales como madera, metal o plástico mediante una fresa giratoria.",
+          htmlShape:
+            '<div class="shape-router"><div class="rt-motor" data-part="1"></div><div class="rt-handle-l" data-part="2"></div><div class="rt-handle-r" data-part="2"></div><div class="rt-base" data-part="3"></div><div class="rt-collet" data-part="4"></div><div class="rt-bit" data-part="4"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Motor / Cuerpo",
+              desc: "Parte superior que contiene el motor eléctrico que hace girar la fresa.",
+              cat: "Energía",
+              top: "20%",
+              left: "50%",
+            },
+            {
+              id: 2,
+              name: "Agarraderas",
+              desc: "Permiten controlar la máquina con ambas manos durante el fresado.",
+              cat: "Operación",
+              top: "40%",
+              left: "18%",
+            },
+            {
+              id: 3,
+              name: "Base",
+              desc: "Punto de apoyo de la fresadora contra la pieza. Guía el corte.",
+              cat: "Estructura",
+              top: "72%",
+              left: "50%",
+            },
+            {
+              id: 4,
+              name: "Fresa / Collet",
+              desc: "Herramienta de corte que gira. Elegir tipo correcto según el trabajo.",
+              cat: "Corte",
+              top: "82%",
+              left: "50%",
+            },
+          ],
+          safety: [
+            { icon: "🥽", text: "Uso obligatorio de lentes de seguridad." },
+            { icon: "😷", text: "Uso de mascarilla por el polvo generado." },
+            {
+              icon: "✓",
+              text: "Escoger el tipo de fresa correcto para el corte a realizar.",
+            },
+            {
+              icon: "✓",
+              text: "Ajustar la profundidad de corte (no traspasar la pieza de un solo).",
+            },
+            {
+              icon: "⚠️",
+              text: "Fijar la pieza firmemente con ayuda de prensa.",
+            },
+            { icon: "✓", text: "Verificar que la fresa esté en buen estado." },
+            {
+              icon: "✋",
+              text: "Mantener con las dos manos la fresadora siempre.",
+            },
+          ],
+          postura: null,
+        },
+        nivel_laser: {
+          id: "nivel_laser",
+          block: "bloque9",
+          icon: "📏",
+          name: "Nivel Láser",
+          desc: "Herramienta de precisión que proyecta líneas rectas y niveladas en superficies. Ideal para asegurar que las estructuras queden perfectamente alineadas.",
+          htmlShape:
+            '<div class="shape-nivel_laser"><div class="nl-body" data-part="4"></div><div class="nl-window" data-part="1"></div><div class="nl-emitter" data-part="1"></div><div class="nl-base" data-part="3"></div><div class="nl-leg-l" data-part="3"></div><div class="nl-leg-r" data-part="3"></div><div class="nl-btn" data-part="2"></div><div class="nl-beam-l"></div><div class="nl-beam-r"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Emisor Láser",
+              desc: "Parte que proyecta la línea de luz. Nunca mirar directamente.",
+              cat: "Partes",
+              top: "40%",
+              left: "48%",
+            },
+            {
+              id: 2,
+              name: "Panel de Control",
+              desc: "Botones de encendido/apagado y configuración.",
+              cat: "Operación",
+              top: "62%",
+              left: "52%",
+            },
+            {
+              id: 3,
+              name: "Base / Soporte",
+              desc: "Sirve para colocar el nivel sobre una superficie estable.",
+              cat: "Estructura",
+              top: "78%",
+              left: "50%",
+            },
+            {
+              id: 4,
+              name: "Carcasa",
+              desc: "Protege los componentes internos del equipo de golpes y polvo.",
+              cat: "Estructura",
+              top: "35%",
+              left: "62%",
+            },
+          ],
+          safety: [
+            {
+              icon: "📖",
+              text: "Leer instrucciones del fabricante antes de operar.",
+            },
+            {
+              icon: "🔋",
+              text: "Verificar estado de baterías (carga suficiente).",
+            },
+            { icon: "🛑", text: "Evitar mirar directamente el láser." },
+            { icon: "⚠️", text: "No mover el nivel una vez esté nivelado." },
+            {
+              icon: "✓",
+              text: "Limpiar el lente para evitar problemas de proyección.",
+            },
+          ],
+          postura: null,
+        },
+        lijadora: {
+          id: "lijadora",
+          block: "bloque9",
+          icon: "🪵",
+          name: "Lijadora Orbital",
+          desc: "Herramienta eléctrica para lijar, alisar y dar acabados a superficies de madera, metal o plástico. Funciona con movimiento circular eliminando imperfecciones uniformemente.",
+          htmlShape:
+            '<div class="shape-lijadora"><div class="lj-body"></div><div class="lj-handle" data-part="2"></div><div class="lj-pad" data-part="1"></div><div class="lj-sandpaper" data-part="1"></div><div class="lj-dust" data-part="4"></div><div class="lj-switch" data-part="3"></div></div>',
+          parts: [
+            {
+              id: 1,
+              name: "Almohadilla de Lijado",
+              desc: "Base inferior donde se coloca la lija. El movimiento orbital permite un acabado uniforme.",
+              cat: "Corte",
+              top: "68%",
+              left: "48%",
+            },
+            {
+              id: 2,
+              name: "Empuñadura",
+              desc: "Parte superior para sostener y guiar la herramienta con ambas manos.",
+              cat: "Estructura",
+              top: "18%",
+              left: "48%",
+            },
+            {
+              id: 3,
+              name: "Interruptor",
+              desc: "Encendido/apagado. Encender antes de contacto con la pieza.",
+              cat: "Operación",
+              top: "42%",
+              left: "48%",
+            },
+            {
+              id: 4,
+              name: "Salida de Ventilación",
+              desc: "Puerto de extracción de polvo. Mantener despejado para buena aspiración.",
+              cat: "Estructura",
+              top: "48%",
+              left: "82%",
+            },
+          ],
+          safety: [
+            {
+              icon: "🥽",
+              text: "Uso de lentes de seguridad y mascarilla obligatorios.",
+            },
+            {
+              icon: "✓",
+              text: "Elegir el grano correcto de lija según el trabajo.",
+            },
+            {
+              icon: "✓",
+              text: "Fijar correctamente la lija (debe estar bien sujeta).",
+            },
+            {
+              icon: "✋",
+              text: "Sujetar la herramienta con ambas manos y buena postura.",
+            },
+            {
+              icon: "⏱️",
+              text: "Encender la lijadora antes de hacer contacto con la pieza.",
+            },
+            {
+              icon: "🛑",
+              text: "No aplicar demasiada presión sobre la superficie.",
+            },
+            {
+              icon: "✓",
+              text: "Mantener la lijadora en movimiento constante.",
+            },
+            {
+              icon: "✓",
+              text: "Revisar frecuentemente la lija (si se obstruye, cambiarla o limpiarla).",
+            },
+          ],
+          postura: null,
+        },
+      };
+
+      // ==================== QUIZ DATA (10 preguntas por bloque) ====================
+      const quizData = {
+        bloque3: [
+          {
+            text: "¿Cuál es el EPP indispensable al operar la Tronzadora eléctrica?",
+            options: [
+              "Solo lentes de seguridad.",
+              "Guantes, lentes de seguridad y protectores auditivos.",
+              "Mascarilla para polvo y guantes.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "Para sujetar una pieza delicada de madera en la Prensa, ¿qué hacer para evitar marcarla?",
+            options: [
+              "Apretarla lo más fuerte posible.",
+              "No usar la prensa, sujetarla con la mano.",
+              "Usar protección de cartón o madera entre las mordazas y la pieza.",
+            ],
+            correct: 2,
+            category: "Operación",
+          },
+          {
+            text: "¿Qué postura debes adoptar al utilizar la Sierra manual?",
+            options: [
+              "Pies juntos, espalda recta y rodillas estiradas.",
+              "Pies separados, un pie ligeramente adelante, rodillas flexionadas y espalda recta.",
+              "Sentado, con la pieza sostenida entre las piernas.",
+            ],
+            correct: 1,
+            category: "Postura",
+          },
+          {
+            text: "¿Qué componente ajusta la tensión de la hoja en la sierra tipo segueta?",
+            options: [
+              "El arco o marco.",
+              "El tornillo / tensor.",
+              "El mango o empuñadura.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "Antes de que el disco de la Tronzadora toque el material, debes:",
+            options: [
+              "Dejar que el disco alcance su máxima velocidad.",
+              "Hacer presión fuerte sobre el material apagada y luego encender.",
+              "Echar lubricante al disco.",
+            ],
+            correct: 0,
+            category: "Operación",
+          },
+          {
+            text: "¿Para qué sirve la Prensa manual?",
+            options: [
+              "Para cortar piezas de metal.",
+              "Para sujetar firmemente piezas evitando que se muevan al trabajar.",
+              "Para medir ángulos de corte.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "¿Qué son las mordazas de la Prensa manual?",
+            options: [
+              "Las patas de la base.",
+              "Las partes que aprietan la pieza.",
+              "Los tornillos de fijación a la mesa.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "Si la hoja de la Sierra manual se traba al cortar, ¿qué debes hacer?",
+            options: [
+              "Forzar el corte con más presión.",
+              "Detenerse, retroceder suavemente y ajustar postura o sujeción.",
+              "Retirar la hoja bruscamente y cambiarla.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "¿Cuál es la función de la guarda en la Tronzadora?",
+            options: [
+              "Decorativa, no tiene función técnica.",
+              "Proteger al operario de las chispas y del contacto con el disco.",
+              "Sostener el material mientras se corta.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "Antes de cortar con la Sierra manual, ¿qué se debe hacer primero?",
+            options: [
+              "Iniciar el corte directamente sobre el material.",
+              "Marcar la línea de corte sobre la pieza.",
+              "Mojar la pieza para reducir fricción.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+        ],
+        bloque5: [
+          {
+            text: "¿Para qué sirve el mandril o portabrocas del taladro manual?",
+            options: [
+              "Para controlar la velocidad.",
+              "Para colocar y sujetar la broca o punta.",
+              "Para encender el taladro.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "¿Qué EPP es obligatorio al usar el esmeril?",
+            options: [
+              "Solo guantes.",
+              "Lentes + careta, mascarilla y protector auditivo.",
+              "Solo lentes de seguridad.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "¿Cuál es la ventaja del taladro de banco sobre el portátil?",
+            options: [
+              "Es más barato.",
+              "La broca baja verticalmente de forma controlada, perforando recto y con fuerza constante.",
+              "Puede cortar materiales más gruesos.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "Antes de perforar con el taladro manual, ¿qué se debe hacer?",
+            options: [
+              "Encender a máxima velocidad inmediatamente.",
+              "Marcar el punto de perforación con lápiz o punzón.",
+              "Sujetar la pieza con la mano libre.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "Al usar el esmeril, ¿qué verificar antes de encender?",
+            options: [
+              "Que la piedra no tenga grietas y la guarda esté colocada.",
+              "Que el cable esté estirado al máximo.",
+              "Que no haya nadie cerca en un radio de 5 metros.",
+            ],
+            correct: 0,
+            category: "Seguridad",
+          },
+          {
+            text: "¿Para qué sirve la manivela del taladro de banco?",
+            options: [
+              "Para cambiar la broca.",
+              "Para subir y bajar la broca de forma controlada.",
+              "Para ajustar la mesa lateralmente.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "¿Qué precaución con la ropa se debe tener al usar el taladro manual?",
+            options: [
+              "Usar ropa suelta para mayor comodidad.",
+              "Cabello recogido y ropa ajustada sin cordones sueltos.",
+              "No es necesario ningún cuidado especial.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "Después de encender el esmeril, ¿qué se debe hacer?",
+            options: [
+              "Acercar la pieza inmediatamente.",
+              "Esperar a que tome velocidad estable.",
+              "Ajustar el apoyapiezas con la máquina en marcha.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Para qué sirve marcar con centro punto en el taladro de banco?",
+            options: [
+              "Para decorar la pieza.",
+              "Para marcar el punto exacto de perforación y evitar que la broca se desvíe.",
+              "Para medir el diámetro del agujero.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Cómo se debe sujetar la pieza al usar el taladro manual?",
+            options: [
+              "Con prensa o tornillo de banco, nunca con la mano.",
+              "Con la mano libre para mayor control.",
+              "Apoyada sobre las rodillas.",
+            ],
+            correct: 0,
+            category: "Seguridad",
+          },
+        ],
+        bloque7: [
+          {
+            text: "¿Para qué sirve la sierra de cinta portátil horizontal?",
+            options: [
+              "Para lijar superficies curvas.",
+              "Para realizar cortes precisos y rectos en materiales sólidos.",
+              "Para perforar metales.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "¿Qué tipo de cortes se pueden hacer con la caladora?",
+            options: [
+              "Solo cortes rectos en metal.",
+              "Cortes curvos, en línea recta y formas complejas.",
+              "Solo cortes a 45 grados.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Qué hace versátil al Dremel?",
+            options: [
+              "Su gran tamaño permite trabajos pesados.",
+              "Se puede usar para pulir, cortar, esmerilar y lijar con accesorios intercambiables.",
+              "Funciona sin electricidad.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "¿Qué EPP se necesita al usar la sierra de cinta?",
+            options: [
+              "Solo mascarilla.",
+              "Lentes y guantes de seguridad.",
+              "No requiere EPP.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "Al cambiar la hoja de sierra de la caladora, ¿qué EPP usar?",
+            options: [
+              "Protectores auditivos.",
+              "Guantes.",
+              "Casco de seguridad.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "¿Qué se debe verificar en el Dremel antes de usarlo?",
+            options: [
+              "Que la mesa esté limpia.",
+              "Inspeccionar el accesorio (que no tenga averías).",
+              "Que el cable tenga al menos 3 metros.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "En la sierra de cinta, ¿qué se debe seleccionar adecuadamente?",
+            options: [
+              "El color de la cinta.",
+              "La velocidad según el material a cortar.",
+              "La marca del disco.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Cómo se debe guiar la caladora al cortar?",
+            options: [
+              "Con movimientos rápidos y bruscos.",
+              "Suavemente, sin movimientos bruscos.",
+              "Empujando con fuerza contra el material.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Con qué mano se debe sostener el Dremel?",
+            options: [
+              "Con ambas manos siempre.",
+              "Con la mano más hábil.",
+              "Con la mano izquierda únicamente.",
+            ],
+            correct: 1,
+            category: "Postura",
+          },
+          {
+            text: "Al usar la caladora, ¿qué EPP es necesario por el aserrín?",
+            options: ["Guantes de cuero.", "Mascarilla.", "Casco con visor."],
+            correct: 1,
+            category: "Seguridad",
+          },
+        ],
+        bloque9: [
+          {
+            text: "¿Por qué se debe ajustar la profundidad de corte en el router?",
+            options: [
+              "Para que el corte sea más rápido.",
+              "Porque no se debe traspasar la pieza de un solo golpe.",
+              "Para evitar que se sobrecaliente el motor.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Qué nunca se debe hacer al usar el nivel láser?",
+            options: [
+              "Colocarlo en una superficie plana.",
+              "Mirar directamente el láser.",
+              "Verificar las baterías.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "¿Qué se debe elegir correctamente al usar la lijadora orbital?",
+            options: [
+              "El color de la lijadora.",
+              "El grano correcto de lija según el trabajo.",
+              "La marca de la herramienta.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Cómo se debe sostener el router/fresadora eléctrica?",
+            options: [
+              "Con una sola mano para mayor velocidad.",
+              "Con las dos manos siempre.",
+              "Apoyado en las rodillas.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "¿Qué verificar en el nivel láser antes de usarlo?",
+            options: [
+              "Que tenga bluetooth.",
+              "El estado de baterías (carga suficiente).",
+              "Que sea de color rojo.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Qué hacer antes de que la lijadora orbital toque la pieza?",
+            options: [
+              "Aplicar presión máxima.",
+              "Encenderla antes de hacer contacto con la superficie.",
+              "Mojar la pieza para menos polvo.",
+            ],
+            correct: 1,
+            category: "Operación",
+          },
+          {
+            text: "¿Para qué sirve la guía del router/fresadora?",
+            options: [
+              "Para medir voltaje.",
+              "Para guiar los cortes de forma precisa.",
+              "Para sostener la pieza.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "¿Para qué sirve el nivel láser?",
+            options: [
+              "Para cortar materiales con láser.",
+              "Para marcar líneas rectas y niveladas con precisión.",
+              "Para calentar superficies.",
+            ],
+            correct: 1,
+            category: "Partes",
+          },
+          {
+            text: "¿Qué sucede si aplicas demasiada presión con la lijadora orbital?",
+            options: [
+              "Se obtiene un acabado mejor.",
+              "Se puede dañar la superficie y la herramienta; se debe evitar.",
+              "Se lija más rápido sin problemas.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+          {
+            text: "¿Qué EPP se necesita al usar el router/fresadora?",
+            options: [
+              "Solo guantes.",
+              "Lentes de seguridad y mascarilla.",
+              "No requiere EPP.",
+            ],
+            correct: 1,
+            category: "Seguridad",
+          },
+        ],
+      };
+
+      // ==================== ESTADO GLOBAL ====================
+      let currentBlock = "bloque3";
+      let currentQuestionIndex = 0,
+        score = 0,
+        userAnswers = [],
+        chartInstance = null;
+
+      // ==================== RENDERIZADO ====================
+      function renderHome() {
+        const container = document.getElementById("home-blocks");
+        const icons = {
+          bloque3: "🗜️",
+          bloque5: "🔩",
+          bloque7: "🔪",
+          bloque9: "🔄",
+        };
+        Object.values(blocksData).forEach((block) => {
+          container.innerHTML += `
+            <button onclick="navTo('${block.id}')" class="p-5 bg-slate-50 border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-lg transition group text-left">
+                <span class="inline-block px-2 py-1 bg-slate-200 text-slate-600 rounded text-xs font-bold mb-2">BLOQUE ${block.num}</span>
+                <span class="text-3xl block mb-2 group-hover:scale-110 transition">${icons[block.id]}</span>
+                <h3 class="font-bold text-slate-800 text-sm">${block.name}</h3>
+                <p class="text-xs text-slate-500 mt-1">${block.tools.map((t) => toolsData[t].name).join(", ")}</p>
+            </button>`;
+        });
+      }
+
+      function renderBlockViews() {
+        const container = document.getElementById("block-views-container");
+        Object.values(blocksData).forEach((block) => {
+          const toolCards = block.tools
+            .map((tid) => {
+              const t = toolsData[tid];
+              return `<button onclick="navTo('${t.id}')" class="p-5 bg-slate-50 border border-slate-200 rounded-xl hover:border-amber-400 hover:shadow-md transition group text-left">
+                    <span class="text-3xl block mb-2 group-hover:scale-110 transition">${t.icon}</span>
+                    <h3 class="font-bold text-slate-800">${t.name}</h3>
+                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">${t.desc.substring(0, 80)}...</p>
+                </button>`;
+            })
+            .join("");
+
+          container.innerHTML += `
+            <section id="view-${block.id}" class="hidden-section animate-fade-in">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 max-w-4xl mx-auto mt-4 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${block.color}"></div>
+                    <button onclick="navTo('home')" class="text-sm text-slate-400 hover:text-amber-500 mb-4 inline-flex items-center gap-1 transition">← Inicio</button>
+                    <span class="inline-block px-4 py-1.5 bg-slate-100 text-slate-700 rounded-full text-sm font-bold mb-4 tracking-wide">BLOQUE ${block.num}</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">${block.name}</h2>
+                    <p class="text-slate-600 mb-8 max-w-2xl">${block.desc}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">${toolCards}</div>
+                    <div class="text-center">
+                        <button onclick="openQuiz('${block.id}')" class="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/20 transform hover:-translate-y-0.5 transition">
+                            🏆 Desafío del Bloque ${block.num}
+                        </button>
+                    </div>
+                </div>
+            </section>`;
+        });
+      }
+
+      function renderToolViews() {
+        const container = document.getElementById("tool-views-container");
+        Object.values(toolsData).forEach((tool) => {
+          const posturaHtml = tool.postura
+            ? `<button class="flex-1 py-4 text-sm font-bold text-slate-500 hover:text-amber-500 border-b-2 border-transparent transition tab-btn" data-target="${tool.id}-postura" data-group="${tool.id}">🚶 Postura</button>`
+            : "";
+          const posturaContent = tool.postura
+            ? `<div id="${tool.id}-postura" class="hidden-section tab-content"><h3 class="text-lg font-bold text-slate-800 mb-4 border-l-4 border-amber-500 pl-3">Postura Correcta</h3><ul class="space-y-3">${tool.postura.map((p) => `<li class="flex items-start gap-3"><span class="text-amber-500 mt-1">📌</span><span class="text-slate-600">${p}</span></li>`).join("")}</ul></div>`
+            : "";
+
+          container.innerHTML += `
+            <section id="view-${tool.id}" class="hidden-section max-w-6xl mx-auto mt-8">
+                <div class="mb-8">
+                    <button onclick="navTo('${tool.block}')" class="text-sm text-slate-400 hover:text-amber-500 mb-3 inline-flex items-center gap-1 transition">← Volver al Bloque ${blocksData[tool.block].num}</button>
+                    <div class="flex items-center gap-4 mb-2">
+                        <span class="text-5xl">${tool.icon}</span>
+                        <h2 class="text-4xl font-extrabold text-slate-900">${tool.name}</h2>
+                    </div>
+                    <p class="text-slate-600 text-lg max-w-3xl">${tool.desc}</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-slate-800 mb-1">Explorador de Partes</h3>
+                        <p class="text-xs text-slate-500 mb-4">Haz clic en los puntos para identificar los componentes.</p>
+                        <div class="diagram-container">
+                            ${tool.htmlShape}
+                            <div id="hotspots-${tool.id}"></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                        <div class="flex border-b border-slate-100 bg-slate-50">
+                            <button class="flex-1 py-4 text-sm font-bold text-amber-600 border-b-2 border-amber-500 transition tab-btn" data-target="${tool.id}-partes" data-group="${tool.id}">⚙️ Partes</button>
+                            <button class="flex-1 py-4 text-sm font-bold text-slate-500 hover:text-amber-500 border-b-2 border-transparent transition tab-btn" data-target="${tool.id}-seguridad" data-group="${tool.id}">🛡️ Seguridad</button>
+                            ${posturaHtml}
+                        </div>
+                        <div class="p-8 flex-grow overflow-y-auto" style="height: 380px;">
+                            <div id="${tool.id}-partes" class="tab-content h-full">
+                                <div id="info-${tool.id}" class="h-full flex flex-col justify-center items-center text-center p-6 bg-slate-50 border border-slate-100 rounded-xl border-dashed">
+                                    <span class="text-4xl mb-3">👆</span>
+                                    <h4 class="text-lg font-bold text-slate-700">Selecciona un punto en el diagrama</h4>
+                                </div>
+                            </div>
+                            <div id="${tool.id}-seguridad" class="hidden-section tab-content">
+                                <h3 class="text-lg font-bold text-slate-800 mb-4 border-l-4 border-red-500 pl-3">Uso Seguro</h3>
+                                <ul class="space-y-4">${tool.safety.map((s) => `<li class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg"><span class="font-bold mt-0.5">${s.icon}</span><span class="text-slate-700 text-sm leading-relaxed">${s.text}</span></li>`).join("")}</ul>
+                            </div>
+                            ${posturaContent}
+                        </div>
+                    </div>
+                </div>
+            </section>`;
+        });
+      }
+
+      function setupInteractions() {
+        Object.values(toolsData).forEach((tool) => {
+          const hotspotContainer = document.getElementById(
+            "hotspots-" + tool.id,
+          );
+          if (!hotspotContainer) return;
+          tool.parts.forEach((part, index) => {
+            const hs = document.createElement("div");
+            hs.className = "hotspot";
+            hs.style.top = part.top;
+            hs.style.left = part.left;
+            hs.innerText = part.id;
+            if (index === 0) hs.innerHTML += '<div class="pulse-ring"></div>';
+            hs.onclick = () => {
+              document
+                .querySelectorAll("#hotspots-" + tool.id + " .hotspot")
+                .forEach((el) => el.classList.remove("active"));
+              hs.classList.add("active");
+              const diagEl = document.querySelector(
+                "#view-" + tool.id + " .diagram-container",
+              );
+              if (diagEl) {
+                diagEl
+                  .querySelectorAll(".part-highlight")
+                  .forEach((el) => el.classList.remove("part-highlight"));
+                diagEl
+                  .querySelectorAll('[data-part="' + part.id + '"]')
+                  .forEach((el) => el.classList.add("part-highlight"));
+              }
+              const tabBtn = document.querySelector(
+                '.tab-btn[data-target="' + tool.id + '-partes"]',
+              );
+              if (tabBtn) tabBtn.click();
+              const panel = document.getElementById("info-" + tool.id);
+              panel.className =
+                "animate-fade-in text-left h-full flex flex-col justify-center";
+              panel.innerHTML =
+                '<span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded w-max mb-3 uppercase">' +
+                part.cat +
+                '</span><h4 class="text-2xl font-extrabold text-slate-800 mb-3">' +
+                part.name +
+                '</h4><p class="text-slate-600 leading-relaxed">' +
+                part.desc +
+                "</p>";
+            };
+            hotspotContainer.appendChild(hs);
+          });
+        });
+
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const group = btn.getAttribute("data-group");
+            const target = btn.getAttribute("data-target");
+            document
+              .querySelectorAll('.tab-btn[data-group="' + group + '"]')
+              .forEach((b) => {
+                b.classList.remove("text-amber-600", "border-amber-500");
+                b.classList.add("text-slate-500", "border-transparent");
+              });
+            document
+              .querySelectorAll("#view-" + group + " .tab-content")
+              .forEach((c) => c.classList.add("hidden-section"));
+            btn.classList.add("text-amber-600", "border-amber-500");
+            btn.classList.remove("text-slate-500", "border-transparent");
+            const contentTarget = document.getElementById(target);
+            contentTarget.classList.remove("hidden-section");
+            contentTarget.classList.add("animate-fade-in");
+          });
+        });
+      }
+
+      // ==================== NAVEGACIÓN ====================
+      function navTo(viewId) {
+        document
+          .querySelectorAll(
+            "main > section, #block-views-container > section, #tool-views-container > section",
+          )
+          .forEach((el) => el.classList.add("hidden-section"));
+        const target = document.getElementById("view-" + viewId);
+        if (target) {
+          target.classList.remove("hidden-section");
+          target.classList.add("animate-fade-in");
+        }
+        window.scrollTo(0, 0);
+      }
+
+      // ==================== QUIZ ====================
+      function openQuiz(blockId) {
+        currentBlock = blockId;
+        currentQuestionIndex = 0;
+        score = 0;
+        userAnswers = [];
+        const block = blocksData[blockId];
+        document.getElementById("quiz-title").innerText =
+          "Desafío Bloque " + block.num;
+        document.getElementById("quiz-subtitle").innerText =
+          "Demuestra tu conocimiento de: " + block.name;
+        document
+          .getElementById("quiz-start")
+          .classList.remove("hidden-section");
+        document
+          .getElementById("quiz-question")
+          .classList.add("hidden-section");
+        document.getElementById("quiz-results").classList.add("hidden-section");
+        navTo("quiz");
+      }
+
+      function startQuiz() {
+        document.getElementById("quiz-start").classList.add("hidden-section");
+        document
+          .getElementById("quiz-question")
+          .classList.remove("hidden-section");
+        showQuestion();
+      }
+
+      function showQuestion() {
+        const questions = quizData[currentBlock];
+        const q = questions[currentQuestionIndex];
+        document.getElementById("q-progress").style.width =
+          (currentQuestionIndex / questions.length) * 100 + "%";
+        document.getElementById("q-counter").innerText =
+          "Pregunta " + (currentQuestionIndex + 1) + " de " + questions.length;
+        document.getElementById("q-text").innerText = q.text;
+        const opts = document.getElementById("q-options");
+        opts.innerHTML = "";
+        q.options.forEach((opt, i) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "w-full text-left p-4 rounded-xl border-2 border-slate-100 bg-slate-50 hover:border-amber-400 hover:bg-white text-slate-700 font-medium transition";
+          btn.innerText = opt;
+          btn.onclick = () => handleAnswer(i, btn);
+          opts.appendChild(btn);
+        });
+      }
+
+      function handleAnswer(idx, btn) {
+        document
+          .getElementById("q-options")
+          .querySelectorAll("button")
+          .forEach((b) => (b.onclick = null));
+        const questions = quizData[currentBlock];
+        const q = questions[currentQuestionIndex];
+        const isCorrect = idx === q.correct;
+        userAnswers.push({ category: q.category, correct: isCorrect });
+        if (isCorrect) {
+          score++;
+          btn.className =
+            "w-full text-left p-4 rounded-xl border-2 border-green-500 bg-green-50 text-green-800 font-bold";
+        } else {
+          btn.className =
+            "w-full text-left p-4 rounded-xl border-2 border-red-500 bg-red-50 text-red-800";
+          document.getElementById("q-options").children[q.correct].className =
+            "w-full text-left p-4 rounded-xl border-2 border-green-500 bg-green-50 text-green-800 font-bold";
+        }
+        setTimeout(() => {
+          currentQuestionIndex++;
+          currentQuestionIndex < questions.length
+            ? showQuestion()
+            : showResults();
+        }, 1200);
+      }
+
+      function showResults() {
+        const questions = quizData[currentBlock];
+        document
+          .getElementById("quiz-question")
+          .classList.add("hidden-section");
+        document
+          .getElementById("quiz-results")
+          .classList.remove("hidden-section");
+        document.getElementById("q-score").innerText = score;
+        document.getElementById("q-total").innerText = questions.length;
+        const fb = document.getElementById("q-feedback");
+        const pct = score / questions.length;
+        if (pct >= 0.9) {
+          fb.className =
+            "p-5 rounded-xl mb-6 bg-green-50 border border-green-200 text-green-800";
+          fb.innerHTML =
+            "<strong>¡Excelente!</strong> Dominas la teoría, seguridad y operación de las herramientas de este bloque. ¡Estás listo para el taller!";
+        } else if (pct >= 0.6) {
+          fb.className =
+            "p-5 rounded-xl mb-6 bg-amber-50 border border-amber-200 text-amber-800";
+          fb.innerHTML =
+            "<strong>Buen trabajo.</strong> Sin embargo, la seguridad industrial exige precisión total. Revisa las áreas donde fallaste en el gráfico.";
+        } else {
+          fb.className =
+            "p-5 rounded-xl mb-6 bg-red-50 border border-red-200 text-red-800";
+          fb.innerHTML =
+            "<strong>Necesitas repasar.</strong> Los riesgos en el taller son reales. Vuelve a leer detenidamente los manuales de seguridad de cada herramienta.";
+        }
+        renderChart(questions);
+      }
+
+      function renderChart(questions) {
+        const cat = {};
+        questions.forEach((q) => {
+          if (!cat[q.category]) cat[q.category] = { t: 0, c: 0 };
+          cat[q.category].t++;
+        });
+        userAnswers.forEach((a) => {
+          if (a.correct) cat[a.category].c++;
+        });
+        const ctx = document.getElementById("resultsChart").getContext("2d");
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: Object.keys(cat),
+            datasets: [
+              {
+                label: "Efectividad (%)",
+                data: Object.keys(cat).map((k) => (cat[k].c / cat[k].t) * 100),
+                backgroundColor: "rgba(245, 158, 11, 0.2)",
+                borderColor: "#f59e0b",
+                borderWidth: 2,
+                borderRadius: 6,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { max: 100, beginAtZero: true } },
+          },
+        });
+      }
+
+      // ==================== INIT ====================
+      document.addEventListener("DOMContentLoaded", () => {
+        renderHome();
+        renderBlockViews();
+        renderToolViews();
+        setupInteractions();
+      });
+    </script>
+  </body>
+</html>
