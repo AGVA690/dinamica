@@ -3211,43 +3211,6 @@
       const SHEETS_URL =
         "https://script.google.com/macros/s/AKfycbygiwAeQPSn0aZqtLBZ2Jlc8HH4t7R2RkMGL40bVcqp22BX60ae5wO1BxhBamMeOwTv/exec";
 
-      // Helper JSONP — evita el bloqueo CORS cuando se abre el archivo
-      // directamente desde disco (origin: null). Requiere que el Apps Script
-      // devuelva callback(data) cuando recibe el parámetro ?callback=...
-      function jsonpFetch(url) {
-        return new Promise(function (resolve, reject) {
-          var cbName =
-            "__jsonp_" +
-            Date.now() +
-            "_" +
-            Math.random().toString(36).slice(2);
-          var script = document.createElement("script");
-          var timer = setTimeout(function () {
-            cleanup();
-            reject(new Error("timeout"));
-          }, 15000);
-          function cleanup() {
-            clearTimeout(timer);
-            delete window[cbName];
-            if (script.parentNode) script.parentNode.removeChild(script);
-          }
-          window[cbName] = function (data) {
-            cleanup();
-            resolve(data);
-          };
-          script.onerror = function () {
-            cleanup();
-            reject(new Error("error de red"));
-          };
-          script.src =
-            url +
-            (url.indexOf("?") >= 0 ? "&" : "?") +
-            "callback=" +
-            cbName;
-          document.head.appendChild(script);
-        });
-      }
-
       // ================================================================
       // UTILIDADES
       // ================================================================
@@ -3343,7 +3306,8 @@
             encodeURIComponent(liga) +
             "&pass=" +
             encodeURIComponent(hashSimple(pass));
-          const data = await jsonpFetch(url);
+          const resp = await fetch(url);
+          const data = await resp.json();
 
           if (data.ok) {
             sessionStorage.setItem("userId", data.userId);
@@ -3397,7 +3361,8 @@
             encodeURIComponent(liga) +
             "&pass=" +
             encodeURIComponent(hashSimple(pass));
-          const data = await jsonpFetch(url);
+          const resp = await fetch(url);
+          const data = await resp.json();
 
           if (data.ok) {
             sessionStorage.setItem("userId", data.userId);
@@ -3481,7 +3446,7 @@
             datos.porcentaje +
             "&fecha=" +
             encodeURIComponent(datos.fecha);
-          await fetch(url, { mode: "no-cors" }).catch(function () {});
+          await fetch(url);
           statusEl.innerHTML =
             '<div style="padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;color:#15803d;font-size:13px;font-weight:600;">✅ Resultado guardado en Google Sheets</div>';
         } catch (e) {
@@ -3510,7 +3475,8 @@
             SHEETS_URL +
             "?action=historial&userId=" +
             encodeURIComponent(userId);
-          const data = await jsonpFetch(url);
+          const resp = await fetch(url);
+          const data = await resp.json();
           registros = data.registros || [];
         } catch (e) {
           document.getElementById("historial-loading").innerHTML =
