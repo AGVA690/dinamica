@@ -874,7 +874,7 @@
     </style>
   </head>
   <body class="flex flex-col min-h-screen">
-    <!-- PANTALLA DE BIENVENIDA -->
+    <!-- ===== PANTALLA DE LOGIN / REGISTRO ===== -->
     <div
       id="welcome-overlay"
       style="
@@ -886,29 +886,32 @@
         align-items: center;
         justify-content: center;
         padding: 16px;
+        overflow-y: auto;
       "
     >
       <div
         style="
           background: white;
-          border-radius: 20px;
+          border-radius: 24px;
           padding: 40px 32px;
-          max-width: 440px;
+          max-width: 460px;
           width: 100%;
           text-align: center;
           box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+          margin: auto;
         "
       >
+        <!-- Logo -->
         <div
           style="
             background: #22c55e;
-            border-radius: 14px;
+            border-radius: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             width: 72px;
             height: 72px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             font-size: 36px;
           "
         >
@@ -916,93 +919,346 @@
         </div>
         <h2
           style="
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 900;
             color: #0f172a;
-            margin: 0 0 6px;
+            margin: 0 0 4px;
           "
         >
           Destrezas Maker
         </h2>
-        <p style="color: #64748b; margin: 0 0 28px; font-size: 14px">
+        <p style="color: #64748b; margin: 0 0 24px; font-size: 13px">
           STEAM MAKER Challenge · FUSALMO
         </p>
-        <div style="text-align: left; margin-bottom: 16px">
-          <label
-            style="
-              display: block;
-              font-size: 13px;
-              font-weight: 700;
-              color: #334155;
-              margin-bottom: 6px;
-            "
-            >Tu nombre completo</label
-          >
-          <input
-            type="text"
-            id="input-nombre"
-            placeholder="Ej: María García"
-            style="
-              width: 100%;
-              padding: 12px 16px;
-              border: 2px solid #e2e8f0;
-              border-radius: 12px;
-              font-size: 15px;
-              color: #0f172a;
-              outline: none;
-              box-sizing: border-box;
-            "
-            onfocus="this.style.borderColor = '#22c55e'"
-            onblur="this.style.borderColor = '#e2e8f0'"
-          />
-        </div>
-        <div style="text-align: left; margin-bottom: 28px">
-          <label
-            style="
-              display: block;
-              font-size: 13px;
-              font-weight: 700;
-              color: #334155;
-              margin-bottom: 6px;
-            "
-            >Tu liga</label
-          >
-          <input
-            type="text"
-            id="input-liga"
-            placeholder="Ej: Transforma / CREA"
-            style="
-              width: 100%;
-              padding: 12px 16px;
-              border: 2px solid #e2e8f0;
-              border-radius: 12px;
-              font-size: 15px;
-              color: #0f172a;
-              outline: none;
-              box-sizing: border-box;
-            "
-            onfocus="this.style.borderColor = '#22c55e'"
-            onblur="this.style.borderColor = '#e2e8f0'"
-          />
-        </div>
-        <button
-          onclick="iniciarApp()"
+
+        <!-- Tabs Login / Registro -->
+        <div
           style="
-            width: 100%;
-            padding: 14px;
-            background: #22c55e;
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            border: none;
+            display: flex;
+            background: #f1f5f9;
             border-radius: 12px;
-            cursor: pointer;
+            padding: 4px;
+            margin-bottom: 24px;
           "
-          onmouseover="this.style.background = '#16a34a'"
-          onmouseout="this.style.background = '#22c55e'"
         >
-          ¡Comenzar! 🚀
-        </button>
+          <button
+            id="tab-login"
+            onclick="switchTab('login')"
+            style="
+              flex: 1;
+              padding: 10px;
+              border: none;
+              border-radius: 10px;
+              background: #22c55e;
+              color: white;
+              font-size: 14px;
+              font-weight: 700;
+              cursor: pointer;
+              transition: all 0.2s;
+            "
+          >
+            Iniciar Sesión
+          </button>
+          <button
+            id="tab-registro"
+            onclick="switchTab('registro')"
+            style="
+              flex: 1;
+              padding: 10px;
+              border: none;
+              border-radius: 10px;
+              background: transparent;
+              color: #64748b;
+              font-size: 14px;
+              font-weight: 700;
+              cursor: pointer;
+              transition: all 0.2s;
+            "
+          >
+            Registrarse
+          </button>
+        </div>
+
+        <!-- Mensaje de estado -->
+        <div
+          id="auth-msg"
+          style="
+            display: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: left;
+          "
+        ></div>
+
+        <!-- ===== FORMULARIO LOGIN ===== -->
+        <div id="form-login">
+          <div style="text-align: left; margin-bottom: 14px">
+            <label
+              style="
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: #334155;
+                margin-bottom: 6px;
+              "
+              >Nombre completo</label
+            >
+            <input
+              type="text"
+              id="login-nombre"
+              placeholder="Ej: María García"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #0f172a;
+                outline: none;
+                box-sizing: border-box;
+              "
+              onfocus="this.style.borderColor = '#22c55e'"
+              onblur="this.style.borderColor = '#e2e8f0'"
+            />
+          </div>
+          <div style="text-align: left; margin-bottom: 14px">
+            <label
+              style="
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: #334155;
+                margin-bottom: 6px;
+              "
+              >Liga</label
+            >
+            <input
+              type="text"
+              id="login-liga"
+              placeholder="Ej: Transforma / CREA"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #0f172a;
+                outline: none;
+                box-sizing: border-box;
+              "
+              onfocus="this.style.borderColor = '#22c55e'"
+              onblur="this.style.borderColor = '#e2e8f0'"
+            />
+          </div>
+          <div style="text-align: left; margin-bottom: 24px">
+            <label
+              style="
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: #334155;
+                margin-bottom: 6px;
+              "
+              >Contraseña</label
+            >
+            <input
+              type="password"
+              id="login-pass"
+              placeholder="Tu contraseña"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #0f172a;
+                outline: none;
+                box-sizing: border-box;
+              "
+              onfocus="this.style.borderColor = '#22c55e'"
+              onblur="this.style.borderColor = '#e2e8f0'"
+              onkeydown="if (event.key === 'Enter') loginUser();"
+            />
+          </div>
+          <button
+            onclick="loginUser()"
+            id="btn-login"
+            style="
+              width: 100%;
+              padding: 14px;
+              background: #22c55e;
+              color: white;
+              font-size: 16px;
+              font-weight: 700;
+              border: none;
+              border-radius: 12px;
+              cursor: pointer;
+            "
+            onmouseover="this.style.background = '#16a34a'"
+            onmouseout="this.style.background = '#22c55e'"
+          >
+            Iniciar Sesión 🚀
+          </button>
+          <p style="margin-top: 16px; font-size: 13px; color: #64748b">
+            ¿No tienes cuenta?
+            <a
+              onclick="switchTab('registro')"
+              style="color: #22c55e; font-weight: 700; cursor: pointer"
+              >Regístrate aquí</a
+            >
+          </p>
+        </div>
+
+        <!-- ===== FORMULARIO REGISTRO ===== -->
+        <div id="form-registro" style="display: none">
+          <div style="text-align: left; margin-bottom: 14px">
+            <label
+              style="
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: #334155;
+                margin-bottom: 6px;
+              "
+              >Nombre completo</label
+            >
+            <input
+              type="text"
+              id="reg-nombre"
+              placeholder="Ej: María García"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #0f172a;
+                outline: none;
+                box-sizing: border-box;
+              "
+              onfocus="this.style.borderColor = '#22c55e'"
+              onblur="this.style.borderColor = '#e2e8f0'"
+            />
+          </div>
+          <div style="text-align: left; margin-bottom: 14px">
+            <label
+              style="
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: #334155;
+                margin-bottom: 6px;
+              "
+              >Liga <span style="color: #ef4444">*</span></label
+            >
+            <input
+              type="text"
+              id="reg-liga"
+              placeholder="Ej: Transforma / CREA"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #0f172a;
+                outline: none;
+                box-sizing: border-box;
+              "
+              onfocus="this.style.borderColor = '#22c55e'"
+              onblur="this.style.borderColor = '#e2e8f0'"
+            />
+          </div>
+          <div style="text-align: left; margin-bottom: 14px">
+            <label
+              style="
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: #334155;
+                margin-bottom: 6px;
+              "
+              >Contraseña</label
+            >
+            <input
+              type="password"
+              id="reg-pass"
+              placeholder="Mínimo 4 caracteres"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #0f172a;
+                outline: none;
+                box-sizing: border-box;
+              "
+              onfocus="this.style.borderColor = '#22c55e'"
+              onblur="this.style.borderColor = '#e2e8f0'"
+            />
+          </div>
+          <div style="text-align: left; margin-bottom: 24px">
+            <label
+              style="
+                display: block;
+                font-size: 13px;
+                font-weight: 700;
+                color: #334155;
+                margin-bottom: 6px;
+              "
+              >Confirmar contraseña</label
+            >
+            <input
+              type="password"
+              id="reg-pass2"
+              placeholder="Repite tu contraseña"
+              style="
+                width: 100%;
+                padding: 12px 16px;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #0f172a;
+                outline: none;
+                box-sizing: border-box;
+              "
+              onfocus="this.style.borderColor = '#22c55e'"
+              onblur="this.style.borderColor = '#e2e8f0'"
+              onkeydown="if (event.key === 'Enter') registrarUser();"
+            />
+          </div>
+          <button
+            onclick="registrarUser()"
+            id="btn-registro"
+            style="
+              width: 100%;
+              padding: 14px;
+              background: #22c55e;
+              color: white;
+              font-size: 16px;
+              font-weight: 700;
+              border: none;
+              border-radius: 12px;
+              cursor: pointer;
+            "
+            onmouseover="this.style.background = '#16a34a'"
+            onmouseout="this.style.background = '#22c55e'"
+          >
+            Crear Cuenta ✅
+          </button>
+          <p style="margin-top: 16px; font-size: 13px; color: #64748b">
+            ¿Ya tienes cuenta?
+            <a
+              onclick="switchTab('login')"
+              style="color: #22c55e; font-weight: 700; cursor: pointer"
+              >Inicia sesión</a
+            >
+          </p>
+        </div>
       </div>
     </div>
     <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-50">
@@ -1049,6 +1305,12 @@
             class="hover:text-green-400 transition px-3 py-2 rounded-md hover:bg-slate-800"
           >
             Bloque 4
+          </button>
+          <button
+            onclick="navTo('historial')"
+            class="text-green-400 font-bold hover:text-green-300 transition px-3 py-2 rounded-md hover:bg-slate-800"
+          >
+            📊 Mi Historial
           </button>
         </nav>
       </div>
@@ -1177,12 +1439,120 @@
                 id="q-feedback"
                 class="p-5 rounded-xl mb-6 text-left border"
               ></div>
-              <button
-                onclick="navTo(currentBlock)"
-                class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition shadow-lg"
+              <!-- Estado envío Google Sheets -->
+              <div
+                id="sheets-status"
+                style="margin-bottom: 12px; display: none"
+              ></div>
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onclick="navTo(currentBlock)"
+                  class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition shadow-lg"
+                >
+                  ← Volver al Bloque
+                </button>
+                <button
+                  onclick="navTo('historial')"
+                  class="px-6 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition shadow-lg"
+                >
+                  📊 Mi Historial
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== HISTORIAL DE NOTAS ===== -->
+      <section id="view-historial" class="hidden-section">
+        <div class="max-w-3xl mx-auto">
+          <div
+            class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+          >
+            <div
+              class="bg-gradient-to-r from-slate-900 to-slate-800 p-8 text-white text-center relative overflow-hidden"
+            >
+              <div class="absolute -right-8 -top-8 opacity-10 text-9xl">📊</div>
+              <span
+                class="inline-block px-3 py-1 bg-green-500 text-white rounded-full text-xs font-bold mb-3 uppercase tracking-wider"
+                >Mi Progreso</span
               >
-                Volver al Bloque
-              </button>
+              <h2 class="text-3xl font-extrabold mb-1">
+                Historial de Desafíos
+              </h2>
+              <p class="text-slate-300 text-sm" id="historial-user-info">—</p>
+            </div>
+            <div class="p-6 md:p-8">
+              <div
+                id="historial-loading"
+                class="text-center py-10 text-slate-400"
+              >
+                <div style="font-size: 32px; margin-bottom: 8px">⏳</div>
+                <p class="font-medium">
+                  Cargando historial desde Google Sheets...
+                </p>
+              </div>
+              <div
+                id="historial-lista"
+                class="space-y-3 mb-6"
+                style="display: none"
+              ></div>
+              <div
+                id="historial-resumen"
+                class="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-6"
+                style="display: none"
+              >
+                <h4
+                  class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4"
+                >
+                  Resumen General
+                </h4>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p
+                      class="text-3xl font-extrabold text-green-500"
+                      id="hist-completados"
+                    >
+                      0
+                    </p>
+                    <p class="text-xs text-slate-500 mt-1">
+                      Desafíos completados
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-3xl font-extrabold text-slate-800"
+                      id="hist-promedio"
+                    >
+                      —
+                    </p>
+                    <p class="text-xs text-slate-500 mt-1">Promedio general</p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-3xl font-extrabold text-blue-500"
+                      id="hist-mejor"
+                    >
+                      —
+                    </p>
+                    <p class="text-xs text-slate-500 mt-1">Mejor nota</p>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onclick="navTo('home')"
+                  class="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition"
+                >
+                  ← Volver al Inicio
+                </button>
+                <button
+                  onclick="cerrarSesion()"
+                  class="px-6 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition"
+                >
+                  🚪 Cerrar Sesión
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2654,20 +3024,7 @@
         });
       }
 
-      // ==================== NAVEGACIÓN ====================
-      function navTo(viewId) {
-        document
-          .querySelectorAll(
-            "main > section, #block-views-container > section, #tool-views-container > section",
-          )
-          .forEach((el) => el.classList.add("hidden-section"));
-        const target = document.getElementById("view-" + viewId);
-        if (target) {
-          target.classList.remove("hidden-section");
-          target.classList.add("animate-fade-in");
-        }
-        window.scrollTo(0, 0);
-      }
+      // ==================== NAVEGACIÓN — ver sección INIT abajo ====================
 
       // ==================== QUIZ ====================
       function openQuiz(blockId) {
@@ -2848,29 +3205,474 @@
         });
       }
 
-      // ==================== INICIO DE APP ====================
-      function iniciarApp() {
-        const nombre = document.getElementById("input-nombre").value.trim();
-        const liga = document.getElementById("input-liga").value.trim();
-        if (!nombre) {
-          alert("Por favor, ingresa tu nombre para continuar.");
-          return;
-        }
-        if (!liga) {
-          alert("Por favor, ingresa tu liga para continuar.");
-          return;
-        }
-        sessionStorage.setItem("userName", nombre);
-        sessionStorage.setItem("userLiga", liga);
-        document.getElementById("welcome-overlay").style.display = "none";
+      // ================================================================
+      // CONFIGURACIÓN GOOGLE SHEETS — pon aquí tu URL de Apps Script
+      // ================================================================
+      const SHEETS_URL =
+        "https://script.google.com/macros/s/AKfycbygiwAeQPSn0aZqtLBZ2Jlc8HH4t7R2RkMGL40bVcqp22BX60ae5wO1BxhBamMeOwTv/exec";
+
+      // Helper JSONP — evita el bloqueo CORS cuando se abre el archivo
+      // directamente desde disco (origin: null). Requiere que el Apps Script
+      // devuelva callback(data) cuando recibe el parámetro ?callback=...
+      function jsonpFetch(url) {
+        return new Promise(function (resolve, reject) {
+          var cbName =
+            "__jsonp_" +
+            Date.now() +
+            "_" +
+            Math.random().toString(36).slice(2);
+          var script = document.createElement("script");
+          var timer = setTimeout(function () {
+            cleanup();
+            reject(new Error("timeout"));
+          }, 15000);
+          function cleanup() {
+            clearTimeout(timer);
+            delete window[cbName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+          }
+          window[cbName] = function (data) {
+            cleanup();
+            resolve(data);
+          };
+          script.onerror = function () {
+            cleanup();
+            reject(new Error("error de red"));
+          };
+          script.src =
+            url +
+            (url.indexOf("?") >= 0 ? "&" : "?") +
+            "callback=" +
+            cbName;
+          document.head.appendChild(script);
+        });
       }
 
-      // ==================== INIT ====================
+      // ================================================================
+      // UTILIDADES
+      // ================================================================
+      function hashSimple(str) {
+        // Hash ligero para contraseña (no criptográfico, suficiente para uso educativo)
+        let h = 0;
+        for (let i = 0; i < str.length; i++) {
+          h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+        }
+        return Math.abs(h).toString(36).toUpperCase();
+      }
+
+      function showAuthMsg(msg, tipo) {
+        // tipo: 'error' | 'ok' | 'info'
+        const el = document.getElementById("auth-msg");
+        const colores = {
+          error: "background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;",
+          ok: "background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;",
+          info: "background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;",
+        };
+        el.style.cssText = colores[tipo] || colores.info;
+        el.style.display = "block";
+        el.style.padding = "12px 16px";
+        el.style.borderRadius = "12px";
+        el.style.marginBottom = "16px";
+        el.style.fontSize = "14px";
+        el.style.fontWeight = "600";
+        el.style.textAlign = "left";
+        el.innerHTML = msg;
+      }
+
+      function setLoadingBtn(id, loading, texto) {
+        const btn = document.getElementById(id);
+        btn.disabled = loading;
+        btn.style.opacity = loading ? "0.7" : "1";
+        btn.innerHTML = loading ? "⏳ Procesando..." : texto;
+      }
+
+      function switchTab(tab) {
+        document.getElementById("auth-msg").style.display = "none";
+        if (tab === "login") {
+          document.getElementById("form-login").style.display = "block";
+          document.getElementById("form-registro").style.display = "none";
+          document.getElementById("tab-login").style.background = "#22c55e";
+          document.getElementById("tab-login").style.color = "white";
+          document.getElementById("tab-registro").style.background =
+            "transparent";
+          document.getElementById("tab-registro").style.color = "#64748b";
+        } else {
+          document.getElementById("form-login").style.display = "none";
+          document.getElementById("form-registro").style.display = "block";
+          document.getElementById("tab-registro").style.background = "#22c55e";
+          document.getElementById("tab-registro").style.color = "white";
+          document.getElementById("tab-login").style.background = "transparent";
+          document.getElementById("tab-login").style.color = "#64748b";
+        }
+      }
+
+      // ================================================================
+      // REGISTRO DE USUARIO
+      // ================================================================
+      async function registrarUser() {
+        const nombre = document.getElementById("reg-nombre").value.trim();
+        const liga = document.getElementById("reg-liga").value.trim();
+        const pass = document.getElementById("reg-pass").value;
+        const pass2 = document.getElementById("reg-pass2").value;
+
+        if (!nombre || !liga || !pass) {
+          showAuthMsg("❌ Completa todos los campos.", "error");
+          return;
+        }
+        if (pass.length < 4) {
+          showAuthMsg(
+            "❌ La contraseña debe tener al menos 4 caracteres.",
+            "error",
+          );
+          return;
+        }
+        if (pass !== pass2) {
+          showAuthMsg("❌ Las contraseñas no coinciden.", "error");
+          return;
+        }
+
+        setLoadingBtn("btn-registro", true, "");
+        showAuthMsg("⏳ Verificando disponibilidad...", "info");
+
+        try {
+          const url =
+            SHEETS_URL +
+            "?action=registrar&nombre=" +
+            encodeURIComponent(nombre) +
+            "&liga=" +
+            encodeURIComponent(liga) +
+            "&pass=" +
+            encodeURIComponent(hashSimple(pass));
+          const data = await jsonpFetch(url);
+
+          if (data.ok) {
+            sessionStorage.setItem("userId", data.userId);
+            sessionStorage.setItem("userName", nombre);
+            sessionStorage.setItem("userLiga", liga);
+            showAuthMsg(
+              "✅ ¡Cuenta creada! Bienvenido/a, " + nombre + ".",
+              "ok",
+            );
+            setTimeout(() => {
+              document.getElementById("welcome-overlay").style.display = "none";
+              updateHeaderUser();
+            }, 1200);
+          } else {
+            showAuthMsg(
+              "❌ " + (data.msg || "Error al registrar. Intenta de nuevo."),
+              "error",
+            );
+          }
+        } catch (e) {
+          showAuthMsg(
+            "⚠️ No se pudo conectar con el servidor. Verifica la URL del script.",
+            "error",
+          );
+        }
+        setLoadingBtn("btn-registro", false, "Crear Cuenta ✅");
+      }
+
+      // ================================================================
+      // LOGIN DE USUARIO
+      // ================================================================
+      async function loginUser() {
+        const nombre = document.getElementById("login-nombre").value.trim();
+        const liga = document.getElementById("login-liga").value.trim();
+        const pass = document.getElementById("login-pass").value;
+
+        if (!nombre || !liga || !pass) {
+          showAuthMsg("❌ Completa todos los campos.", "error");
+          return;
+        }
+
+        setLoadingBtn("btn-login", true, "");
+        showAuthMsg("⏳ Verificando credenciales...", "info");
+
+        try {
+          const url =
+            SHEETS_URL +
+            "?action=login&nombre=" +
+            encodeURIComponent(nombre) +
+            "&liga=" +
+            encodeURIComponent(liga) +
+            "&pass=" +
+            encodeURIComponent(hashSimple(pass));
+          const data = await jsonpFetch(url);
+
+          if (data.ok) {
+            sessionStorage.setItem("userId", data.userId);
+            sessionStorage.setItem("userName", nombre);
+            sessionStorage.setItem("userLiga", liga);
+            showAuthMsg("✅ ¡Bienvenido/a de vuelta, " + nombre + "!", "ok");
+            setTimeout(() => {
+              document.getElementById("welcome-overlay").style.display = "none";
+              updateHeaderUser();
+            }, 1000);
+          } else {
+            showAuthMsg(
+              "❌ " + (data.msg || "Nombre, liga o contraseña incorrectos."),
+              "error",
+            );
+          }
+        } catch (e) {
+          showAuthMsg(
+            "⚠️ No se pudo conectar con el servidor. Verifica la URL del script.",
+            "error",
+          );
+        }
+        setLoadingBtn("btn-login", false, "Iniciar Sesión 🚀");
+      }
+
+      function cerrarSesion() {
+        sessionStorage.clear();
+        document.getElementById("welcome-overlay").style.display = "flex";
+        switchTab("login");
+        navTo("home");
+      }
+
+      function updateHeaderUser() {
+        const nombre = sessionStorage.getItem("userName") || "";
+        const liga = sessionStorage.getItem("userLiga") || "";
+        let badge = document.getElementById("header-user-badge");
+        if (!badge) {
+          badge = document.createElement("div");
+          badge.id = "header-user-badge";
+          badge.style.cssText = "display:flex;align-items:center;gap:10px;";
+          const nav = document.querySelector("header nav");
+          if (nav) nav.parentNode.insertBefore(badge, nav.nextSibling);
+        }
+        badge.innerHTML =
+          '<span style="background:#1e293b;border:1px solid #334155;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:700;color:#94a3b8;">' +
+          "👤 " +
+          nombre +
+          ' <span style="color:#22c55e;">· ' +
+          liga +
+          "</span></span>" +
+          '<button onclick="cerrarSesion()" style="background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Salir</button>';
+      }
+
+      // ================================================================
+      // GOOGLE SHEETS — GUARDAR RESULTADO
+      // ================================================================
+      async function enviarResultadoSheets(datos) {
+        const statusEl = document.getElementById("sheets-status");
+        statusEl.style.display = "block";
+        statusEl.innerHTML =
+          '<div style="padding:10px 14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;color:#1d4ed8;font-size:13px;font-weight:600;">⏳ Guardando resultado en Google Sheets...</div>';
+        try {
+          const url =
+            SHEETS_URL +
+            "?action=guardarNota" +
+            "&userId=" +
+            encodeURIComponent(datos.userId) +
+            "&nombre=" +
+            encodeURIComponent(datos.nombre) +
+            "&liga=" +
+            encodeURIComponent(datos.liga) +
+            "&bloque=" +
+            encodeURIComponent(datos.bloque) +
+            "&bloqueNombre=" +
+            encodeURIComponent(datos.bloqueNombre) +
+            "&puntos=" +
+            datos.puntos +
+            "&total=" +
+            datos.total +
+            "&porcentaje=" +
+            datos.porcentaje +
+            "&fecha=" +
+            encodeURIComponent(datos.fecha);
+          await fetch(url, { mode: "no-cors" }).catch(function () {});
+          statusEl.innerHTML =
+            '<div style="padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;color:#15803d;font-size:13px;font-weight:600;">✅ Resultado guardado en Google Sheets</div>';
+        } catch (e) {
+          statusEl.innerHTML =
+            '<div style="padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;color:#b91c1c;font-size:13px;font-weight:600;">⚠️ Error al guardar. Verifica la URL del script.</div>';
+        }
+      }
+
+      // ================================================================
+      // HISTORIAL — LEER DESDE GOOGLE SHEETS
+      // ================================================================
+      async function renderHistorial() {
+        const userId = sessionStorage.getItem("userId") || "";
+        const nombre = sessionStorage.getItem("userName") || "Estudiante";
+        const liga = sessionStorage.getItem("userLiga") || "";
+
+        document.getElementById("historial-user-info").innerText =
+          nombre + (liga ? " · Liga: " + liga : "");
+        document.getElementById("historial-loading").style.display = "block";
+        document.getElementById("historial-lista").style.display = "none";
+        document.getElementById("historial-resumen").style.display = "none";
+
+        let registros = [];
+        try {
+          const url =
+            SHEETS_URL +
+            "?action=historial&userId=" +
+            encodeURIComponent(userId);
+          const data = await jsonpFetch(url);
+          registros = data.registros || [];
+        } catch (e) {
+          document.getElementById("historial-loading").innerHTML =
+            '<div style="text-align:center;padding:20px;color:#b91c1c;">⚠️ No se pudo cargar el historial. Verifica la conexión.</div>';
+          return;
+        }
+
+        document.getElementById("historial-loading").style.display = "none";
+        document.getElementById("historial-lista").style.display = "block";
+
+        const lista = document.getElementById("historial-lista");
+        if (registros.length === 0) {
+          lista.innerHTML =
+            '<div style="text-align:center;padding:40px 20px;color:#94a3b8;"><p style="font-size:32px;margin-bottom:8px;">📋</p><p style="font-weight:600;">Aún no has completado ningún desafío.</p></div>';
+          return;
+        }
+
+        const colores = [
+          "from-green-500 to-emerald-600",
+          "from-blue-500 to-cyan-600",
+          "from-violet-500 to-purple-600",
+          "from-orange-500 to-amber-600",
+        ];
+        lista.innerHTML = registros
+          .map((r, i) => {
+            const pct = parseInt(r.porcentaje) || 0;
+            const colorText =
+              pct >= 90
+                ? "color:#16a34a"
+                : pct >= 60
+                  ? "color:#2563eb"
+                  : "color:#dc2626";
+            const emoji = pct >= 90 ? "🏆" : pct >= 60 ? "✅" : "📖";
+            const grad = colores[i % colores.length];
+            return (
+              '<div style="display:flex;align-items:center;gap:16px;padding:16px;border-radius:16px;border:1px solid #e2e8f0;background:white;margin-bottom:12px;">' +
+              '<div class="w-12 h-12 rounded-xl bg-gradient-to-br ' +
+              grad +
+              ' flex items-center justify-center text-white font-extrabold text-lg flex-shrink-0" style="min-width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:16px;">' +
+              (i + 1) +
+              "</div>" +
+              '<div style="flex:1;min-width:0;"><p style="font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 0 2px;">' +
+              (r.bloqueNombre || r.bloque) +
+              "</p>" +
+              '<p style="font-size:12px;color:#94a3b8;margin:0;">' +
+              (r.fecha || "") +
+              "</p></div>" +
+              '<div style="text-align:right;flex-shrink:0;"><p style="font-size:24px;font-weight:900;margin:0 0 2px;' +
+              colorText +
+              '">' +
+              pct +
+              "%</p>" +
+              '<p style="font-size:12px;color:#94a3b8;margin:0;">' +
+              r.puntos +
+              "/" +
+              r.total +
+              " " +
+              emoji +
+              "</p></div>" +
+              "</div>"
+            );
+          })
+          .join("");
+
+        const pcts = registros.map((r) => parseInt(r.porcentaje) || 0);
+        const prom = Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length);
+        const mejor = Math.max(...pcts);
+        document.getElementById("hist-completados").innerText =
+          registros.length;
+        document.getElementById("hist-promedio").innerText = prom + "%";
+        document.getElementById("hist-mejor").innerText = mejor + "%";
+        document.getElementById("historial-resumen").style.display = "block";
+      }
+
+      // ================================================================
+      // SHOW RESULTS — actualizado para usar Sheets
+      // ================================================================
+      function showResults() {
+        const questions = quizData[currentBlock];
+        const name = sessionStorage.getItem("userName") || "Estudiante";
+        const liga = sessionStorage.getItem("userLiga") || "";
+        const userId = sessionStorage.getItem("userId") || "";
+
+        document
+          .getElementById("quiz-question")
+          .classList.add("hidden-section");
+        document
+          .getElementById("quiz-results")
+          .classList.remove("hidden-section");
+        document.getElementById("q-score").innerText = score;
+        document.getElementById("q-total").innerText = questions.length;
+        document.getElementById("sheets-status").style.display = "none";
+
+        const fb = document.getElementById("q-feedback");
+        const pct = score / questions.length;
+        if (pct >= 0.9) {
+          fb.className =
+            "p-5 rounded-xl mb-6 bg-green-50 border border-green-200 text-green-800";
+          fb.innerHTML =
+            "<strong>¡Excelente, " +
+            name +
+            "!</strong> Dominas la teoría, seguridad y operación de las herramientas de este bloque. ¡Estás listo para el taller!";
+        } else if (pct >= 0.6) {
+          fb.className =
+            "p-5 rounded-xl mb-6 bg-green-50 border border-green-200 text-green-800";
+          fb.innerHTML =
+            "<strong>¡Bien, " +
+            name +
+            "!</strong> Aprobaste el desafío. Revisa las áreas donde fallaste en el gráfico.";
+        } else {
+          fb.className =
+            "p-5 rounded-xl mb-6 bg-red-50 border border-red-200 text-red-800";
+          fb.innerHTML =
+            "<strong>Necesitas repasar, " +
+            name +
+            ".</strong> Los riesgos en el taller son reales. Vuelve a leer el documento y los manuales de seguridad de cada herramienta antes de intentarlo nuevamente.";
+        }
+        renderChart(questions);
+        enviarResultadoSheets({
+          userId,
+          nombre: name,
+          liga,
+          bloque: blocksData[currentBlock]?.num || currentBlock,
+          bloqueNombre: blocksData[currentBlock]?.name || currentBlock,
+          puntos: score,
+          total: questions.length,
+          porcentaje: Math.round(pct * 100),
+          fecha: new Date().toLocaleString("es-SV"),
+        });
+      }
+
+      // ================================================================
+      // NAV — actualizado para cargar historial
+      // ================================================================
+      function navTo(viewId) {
+        document
+          .querySelectorAll(
+            "main > section, #block-views-container > section, #tool-views-container > section",
+          )
+          .forEach((el) => el.classList.add("hidden-section"));
+        const target = document.getElementById("view-" + viewId);
+        if (target) {
+          target.classList.remove("hidden-section");
+          target.classList.add("animate-fade-in");
+        }
+        if (viewId === "historial") renderHistorial();
+        window.scrollTo(0, 0);
+      }
+
+      // ================================================================
+      // INIT
+      // ================================================================
       document.addEventListener("DOMContentLoaded", () => {
         renderHome();
         renderBlockViews();
         renderToolViews();
         setupInteractions();
+        // Si ya hay sesión activa (recarga de página), saltar el login
+        if (sessionStorage.getItem("userId")) {
+          document.getElementById("welcome-overlay").style.display = "none";
+          updateHeaderUser();
+        }
       });
     </script>
   </body>
